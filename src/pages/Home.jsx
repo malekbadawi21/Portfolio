@@ -133,10 +133,11 @@ export default function Home() {
   function handleItemClick(item) {
     const next = item === activeItem ? null : item
     setIsVisible(false)
+    setTransitioning(false)
     startPhotoInterval()
     setTimeout(() => {
       setActiveItem(next)
-      setTimeout(() => setIsVisible(true), 50)
+      setTimeout(() => setIsVisible(true), 150)
     }, 300)
   }
 
