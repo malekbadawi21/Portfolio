@@ -57,9 +57,14 @@
     display: none;
   }
 
+  .scroll-container {
+    scroll-snap-type: none;
+    overflow-y: auto;
+  }
+
   .snap-section {
     height: auto;
     min-height: 100vh;
-    scroll-snap-align: start;
+    scroll-snap-align: none;
   }
 }
