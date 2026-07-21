@@ -43,3 +43,23 @@
   line-height: 1;
   transform: translateY(-50%);
 }
+
+@media (max-width: 768px) {
+  .nav {
+    padding: 20px 24px;
+  }
+
+  .nav-name {
+    font-size: 14px;
+  }
+
+  .mb-fixed {
+    display: none;
+  }
+
+  .snap-section {
+    height: auto;
+    min-height: 100vh;
+    scroll-snap-align: start;
+  }
+}

@@ -35,3 +35,25 @@
   0%, 100% { transform: translateX(-50%) translateY(0); }
   50%       { transform: translateX(-50%) translateY(10px); }
 }
+
+@media (max-width: 768px) {
+  .landing {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 24px 0;
+    gap: 32px;
+  }
+
+  .landing-name {
+    font-size: clamp(48px, 14vw, 72px);
+    text-align: center;
+  }
+
+  .landing-photo {
+    height: 50vh;
+    width: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+}

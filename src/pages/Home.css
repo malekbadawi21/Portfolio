@@ -297,3 +297,91 @@
   object-fit: contain;
   display: block;
 }
+
+@media (max-width: 768px) {
+  .page {
+    padding-top: 60px;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .rule {
+    margin: 0 24px;
+  }
+
+  .main {
+    padding: 0 24px;
+    overflow: visible;
+  }
+
+  .col-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .content-area {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 32px 0 48px;
+    gap: 32px;
+    overflow: visible;
+  }
+
+  .content-left {
+    width: 100%;
+    padding-left: 0;
+  }
+
+  .summary-text {
+    font-size: 20px;
+    max-width: 100%;
+  }
+
+  .detail-panel {
+    max-width: 100%;
+  }
+
+  .detail-title {
+    font-size: 24px;
+  }
+
+  .detail-body {
+    font-size: 15px;
+  }
+
+  .content-right {
+    width: 100%;
+    height: 300px;
+    margin-right: 0;
+  }
+
+  .content-right-item {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    margin-right: 0;
+  }
+
+  .content-right-pdf {
+    width: 100%;
+    height: 480px;
+    margin-right: 0;
+  }
+
+  .content-right-collage {
+    width: 100%;
+    margin-right: 0;
+    overflow: hidden;
+  }
+
+  .photo-collage {
+    width: 100%;
+    height: 320px;
+    transform: scale(0.5);
+    transform-origin: top left;
+  }
+
+  .logo-display {
+    margin-top: 20px;
+  }
+}
