@@ -98,8 +98,6 @@ export default function Home() {
   const [activeItem, setActiveItem] = useState(null)
   const [isVisible, setIsVisible] = useState(true)
   const [currentPhoto, setCurrentPhoto] = useState(0)
-  const [nextPhoto, setNextPhoto] = useState(1)
-  const [transitioning, setTransitioning] = useState(false)
   const currentPhotoRef = useRef(0)
   const intervalRef = useRef(null)
 
@@ -107,13 +105,8 @@ export default function Home() {
     if (intervalRef.current) clearInterval(intervalRef.current)
     intervalRef.current = setInterval(() => {
       const next = (currentPhotoRef.current + 1) % photos.length
-      setNextPhoto(next)
-      setTransitioning(true)
-      setTimeout(() => {
-        currentPhotoRef.current = next
-        setCurrentPhoto(next)
-        setTransitioning(false)
-      }, 700)
+      currentPhotoRef.current = next
+      setCurrentPhoto(next)
     }, 3500)
   }
 
@@ -133,7 +126,6 @@ export default function Home() {
   function handleItemClick(item) {
     const next = item === activeItem ? null : item
     setIsVisible(false)
-    setTransitioning(false)
     startPhotoInterval()
     setTimeout(() => {
       setActiveItem(next)
@@ -236,23 +228,12 @@ export default function Home() {
                 className="item-image"
               />
             ) : (
-              <>
-                <img
-                  src={photos[currentPhoto]}
-                  alt="Malek Badawi"
-                  className="personality-photo"
-                  style={{ opacity: 1 }}
-                />
-                <img
-                  src={photos[nextPhoto]}
-                  alt="Malek Badawi"
-                  className="personality-photo"
-                  style={{
-                    opacity: transitioning ? 1 : 0,
-                    transition: 'opacity 0.6s ease',
-                  }}
-                />
-              </>
+              <img
+                key={currentPhoto}
+                src={photos[currentPhoto]}
+                alt="Malek Badawi"
+                className="personality-photo"
+              />
             )}
           </div>
         </div>
