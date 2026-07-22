@@ -203,12 +203,24 @@
   height: 100%;
   object-fit: cover;
   object-position: center top;
-  animation: photoFadeIn 1.4s ease-in-out;
+}
+
+.personality-photo-in {
+  animation: photoFadeIn 1s ease-in-out;
+}
+
+.personality-photo-out {
+  animation: photoFadeOut 1s ease-in-out forwards;
 }
 
 @keyframes photoFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+@keyframes photoFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 .content-right-fixed {
