@@ -113,7 +113,7 @@ export default function Home() {
         currentPhotoRef.current = next
         setCurrentPhoto(next)
         setTransitioning(false)
-      }, 600)
+      }, 700)
     }, 3500)
   }
 
@@ -249,7 +249,7 @@ export default function Home() {
                   className="personality-photo"
                   style={{
                     opacity: transitioning ? 1 : 0,
-                    transition: transitioning ? 'opacity 0.6s ease' : 'none',
+                    transition: 'opacity 0.6s ease',
                   }}
                 />
               </>
