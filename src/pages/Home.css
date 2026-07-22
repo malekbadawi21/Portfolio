@@ -205,23 +205,6 @@
   object-position: center top;
 }
 
-.personality-photo-in {
-  animation: photoFadeIn 1s ease-in-out;
-}
-
-.personality-photo-out {
-  animation: photoFadeOut 1s ease-in-out forwards;
-}
-
-@keyframes photoFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes photoFadeOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
 
 .content-right-fixed {
   width: 360px;

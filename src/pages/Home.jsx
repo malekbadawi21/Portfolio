@@ -98,7 +98,7 @@ export default function Home() {
   const [activeItem, setActiveItem] = useState(null)
   const [isVisible, setIsVisible] = useState(true)
   const [currentPhoto, setCurrentPhoto] = useState(0)
-  const [prevPhoto, setPrevPhoto] = useState(null)
+  const [photoVisible, setPhotoVisible] = useState(true)
   const currentPhotoRef = useRef(0)
   const intervalRef = useRef(null)
 
@@ -106,10 +106,12 @@ export default function Home() {
     if (intervalRef.current) clearInterval(intervalRef.current)
     intervalRef.current = setInterval(() => {
       const next = (currentPhotoRef.current + 1) % photos.length
-      setPrevPhoto(currentPhotoRef.current)
-      currentPhotoRef.current = next
-      setCurrentPhoto(next)
-      setTimeout(() => setPrevPhoto(null), 1200)
+      setPhotoVisible(false)
+      setTimeout(() => {
+        currentPhotoRef.current = next
+        setCurrentPhoto(next)
+        setPhotoVisible(true)
+      }, 700)
     }, 3500)
   }
 
@@ -231,22 +233,12 @@ export default function Home() {
                 className="item-image"
               />
             ) : (
-              <>
-                {prevPhoto !== null && (
-                  <img
-                    key={`prev-${prevPhoto}`}
-                    src={photos[prevPhoto]}
-                    alt="Malek Badawi"
-                    className="personality-photo personality-photo-out"
-                  />
-                )}
-                <img
-                  key={`curr-${currentPhoto}`}
-                  src={photos[currentPhoto]}
-                  alt="Malek Badawi"
-                  className="personality-photo personality-photo-in"
-                />
-              </>
+              <img
+                src={photos[currentPhoto]}
+                alt="Malek Badawi"
+                className="personality-photo"
+                style={{ opacity: photoVisible ? 1 : 0, transition: 'opacity 0.7s ease' }}
+              />
             )}
           </div>
         </div>
