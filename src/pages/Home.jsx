@@ -111,7 +111,7 @@ export default function Home() {
         currentPhotoRef.current = next
         setCurrentPhoto(next)
         setPhotoVisible(true)
-      }, 700)
+      }, 900)
     }, 3500)
   }
 
@@ -237,7 +237,7 @@ export default function Home() {
                 src={photos[currentPhoto]}
                 alt="Malek Badawi"
                 className="personality-photo"
-                style={{ opacity: photoVisible ? 1 : 0, transition: 'opacity 0.7s ease' }}
+                style={{ opacity: photoVisible ? 1 : 0, transition: 'opacity 0.6s ease' }}
               />
             )}
           </div>
