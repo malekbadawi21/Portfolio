@@ -203,7 +203,7 @@
   height: 100%;
   object-fit: cover;
   object-position: center top;
-  animation: photoFadeIn 0.8s ease;
+  animation: photoFadeIn 1.4s ease-in-out;
 }
 
 @keyframes photoFadeIn {
