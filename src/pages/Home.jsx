@@ -98,7 +98,6 @@ export default function Home() {
   const [activeItem, setActiveItem] = useState(null)
   const [isVisible, setIsVisible] = useState(true)
   const [currentPhoto, setCurrentPhoto] = useState(0)
-  const [photoVisible, setPhotoVisible] = useState(true)
   const currentPhotoRef = useRef(0)
   const intervalRef = useRef(null)
 
@@ -106,14 +105,8 @@ export default function Home() {
     if (intervalRef.current) clearInterval(intervalRef.current)
     intervalRef.current = setInterval(() => {
       const next = (currentPhotoRef.current + 1) % photos.length
-      setPhotoVisible(false)
-      setTimeout(() => {
-        currentPhotoRef.current = next
-        setCurrentPhoto(next)
-      }, 800)
-      setTimeout(() => {
-        setPhotoVisible(true)
-      }, 850)
+      currentPhotoRef.current = next
+      setCurrentPhoto(next)
     }, 3500)
   }
 
@@ -235,12 +228,15 @@ export default function Home() {
                 className="item-image"
               />
             ) : (
-              <img
-                src={photos[currentPhoto]}
-                alt="Malek Badawi"
-                className="personality-photo"
-                style={{ opacity: photoVisible ? 1 : 0, transition: 'opacity 0.6s ease' }}
-              />
+              photos.map((photo, i) => (
+                <img
+                  key={i}
+                  src={photo}
+                  alt="Malek Badawi"
+                  className="personality-photo"
+                  style={{ opacity: i === currentPhoto ? 1 : 0, transition: 'opacity 0.8s ease' }}
+                />
+              ))
             )}
           </div>
         </div>
