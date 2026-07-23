@@ -211,7 +211,7 @@ export default function Home() {
           <div className={activeItem?.pdf ? 'content-right-pdf' : activeItem?.logo ? 'content-right' : activeItem?.images?.length > 1 ? 'content-right-collage' : activeItem?.images?.length === 1 ? 'content-right-item' : 'content-right'}>
             {activeItem?.pdf ? (
               <iframe
-                src={activeItem.pdf}
+                src={activeItem.pdf + '#toolbar=0&navpanes=0&scrollbar=0'}
                 className="pdf-embed"
                 title="Resume"
               />
