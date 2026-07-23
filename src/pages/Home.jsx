@@ -110,8 +110,10 @@ export default function Home() {
       setTimeout(() => {
         currentPhotoRef.current = next
         setCurrentPhoto(next)
+      }, 800)
+      setTimeout(() => {
         setPhotoVisible(true)
-      }, 900)
+      }, 850)
     }, 3500)
   }
 
