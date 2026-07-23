@@ -19,6 +19,7 @@ export default function Landing({ progress, nameRef }) {
         src={photo}
         alt="Malek Badawi"
         className="landing-photo"
+        loading="lazy"
       />
       <div className="scroll-arrow" style={{ opacity: arrowOpacity }}>
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none">

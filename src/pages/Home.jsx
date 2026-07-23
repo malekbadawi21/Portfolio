@@ -216,11 +216,11 @@ export default function Home() {
                 title="Resume"
               />
             ) : activeItem?.logo ? (
-              <img src="/favicon.svg" alt="MB" className="logo-display" />
+              <img src="/favicon.svg" alt="MB" className="logo-display" loading="lazy" />
             ) : activeItem?.images?.length > 1 ? (
               <div className="photo-collage">
                 {activeItem.images.map((img, i) => (
-                  <img key={i} src={img} alt={activeItem.label} className={`${activeItem.collageStyle}-img-${i + 1}`} />
+                  <img key={i} src={img} alt={activeItem.label} className={`${activeItem.collageStyle}-img-${i + 1}`} loading="lazy" />
                 ))}
               </div>
             ) : activeItem?.images?.length === 1 ? (
@@ -228,6 +228,7 @@ export default function Home() {
                 src={activeItem.images[0]}
                 alt={activeItem.label}
                 className="item-image"
+                loading="lazy"
               />
             ) : (
               photos.map((photo, i) => (
@@ -237,6 +238,7 @@ export default function Home() {
                   alt="Malek Badawi"
                   className="personality-photo"
                   style={{ opacity: i === currentPhoto ? 1 : 0, transition: 'opacity 0.8s ease' }}
+                  loading="lazy"
                 />
               ))
             )}
