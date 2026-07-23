@@ -11,6 +11,7 @@ import uclImg2 from '../assets/UCLPics/IMG_3218.jpeg'
 import uclImg3 from '../assets/UCLPics/UCLSLIDE1.png'
 import uclImg4 from '../assets/UCLPics/UCLSLIDE2.png'
 import lsuImg from '../assets/LSUPics/IMG_3219.jpg'
+import golfGif from '../assets/ProjectPics/golf_swing.gif'
 
 import photo0 from '../assets/PersonalityPics/DC315D96-E015-4833-A50C-4C34E06EA505.JPG'
 import photo1 from '../assets/PersonalityPics/IMG_1099.JPG'
@@ -74,11 +75,12 @@ const columns = [
         images: [ayceImg1, ayceImg2, ayceImg3],
         collageStyle: 'ayce',
       },
-      { 
-        id: 'golf', 
-        label: 'Golf Swing', 
-        title: 'Golf Swing Analyzer', 
-        body: 'Coming soon.' 
+      {
+        id: 'golf',
+        label: 'Golf Swing',
+        title: 'Golf Swing Analyzer',
+        body: 'A computer vision tool that analyzes golf swings in real time. Built with Python, OpenCV, and MediaPipe, it tracks 33 body landmarks per frame, applies a hybrid pose detection model to handle partial occlusion, and automatically identifies the swing plane from the club shaft in the opening frames — drawing it as a dotted reference line throughout the swing.',
+        images: [golfGif],
       },
     ],
   },
