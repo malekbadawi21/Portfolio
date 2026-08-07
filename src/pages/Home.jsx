@@ -245,6 +245,10 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      <footer className="footer">
+        © 2026 Malek Badawi
+      </footer>
     </div>
   )
 }
