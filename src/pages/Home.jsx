@@ -1,9 +1,20 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './Home.css'
+
+import Header from '../components/Header'
+import Hero from '../components/Hero'
+import Intro from '../components/Intro'
+import Roles from '../components/Roles'
+import Education from '../components/Education'
+import Projects from '../components/Projects'
+import Contact from '../components/Contact'
+import Footer from '../components/Footer'
+
+import headshot from '../assets/HeadShot3.jpg'
+import roomImg from '../assets/PenningtonPics/IMG_3174-room.jpg'
 
 import penningtonImg from '../assets/PenningtonPics/IMG_3174.jpg'
 import adaImg from '../assets/ADAPics/ADAlogo.png'
-import uclImg1 from '../assets/UCLPics/IMG_3208.JPG'
 import uclImg2 from '../assets/UCLPics/IMG_3218.jpeg'
 import uclImg3 from '../assets/UCLPics/UCLSLIDE1.png'
 import uclImg4 from '../assets/UCLPics/UCLSLIDE2.png'
@@ -107,160 +118,85 @@ const columns = [
   },
 ]
 
+// The two halves of the original summary line, kept word for word.
+const summary = {
+  lead: 'Student, researcher, builder.',
+  line: 'Studying Software Engineering at LSU, researching at Pennington Biomedical, and building toward a future in AI.',
+}
+
+const byId = (id) => columns.find((c) => c.id === id)
+
 export default function Home() {
-  const [activeColumn, setActiveColumn] = useState(null)
-  const [activeItem, setActiveItem] = useState(null)
-  const [isVisible, setIsVisible] = useState(true)
-  const [currentPhoto, setCurrentPhoto] = useState(0)
-  const currentPhotoRef = useRef(0)
-  const intervalRef = useRef(null)
+  const heroRef = useRef(null)
+  const [headerShown, setHeaderShown] = useState(false)
 
-  function startPhotoInterval() {
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    intervalRef.current = setInterval(() => {
-      const next = (currentPhotoRef.current + 1) % photos.length
-      currentPhotoRef.current = next
-      setCurrentPhoto(next)
-    }, 3500)
-  }
-
+  // Scroll progress through the first screen drives the badge and the header.
   useEffect(() => {
-    startPhotoInterval()
-    return () => clearInterval(intervalRef.current)
+    let frame = 0
+    function update() {
+      frame = 0
+      const p = Math.min(Math.max(window.scrollY / window.innerHeight, 0), 1)
+      heroRef.current?.style.setProperty('--p', p.toFixed(3))
+      setHeaderShown(p > 0.55)
+    }
+    function onScroll() {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      cancelAnimationFrame(frame)
+    }
   }, [])
 
-  function handleColumnClick(colId) {
-    if (activeColumn === colId) {
-      setActiveColumn(null)
-    } else {
-      setActiveColumn(colId)
-    }
-  }
+  // Entrances: every [data-reveal] rises in once as it enters. Content is
+  // visible without this script; the hidden start state only exists under
+  // html.motion, which is set here.
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce || !('IntersectionObserver' in window)) return
+    document.documentElement.classList.add('motion')
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in')
+            io.unobserve(e.target)
+          }
+        })
+      },
+      { rootMargin: '0px 0px -8% 0px' },
+    )
+    document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [])
 
-  function handleItemClick(item) {
-    const next = item === activeItem ? null : item
-    setIsVisible(false)
-    startPhotoInterval()
-    setTimeout(() => {
-      setActiveItem(next)
-      setTimeout(() => setIsVisible(true), 150)
-    }, 300)
-  }
+  const roles = byId('roles')
+  const education = byId('education')
+  const projects = byId('projects')
+  const contact = byId('contact')
 
   return (
-    <div className="page">
-      <hr className="rule" />
-
-      <main className="main">
-        <div className="col-grid">
-          {columns.map((col) => (
-            <div key={col.id} className="col">
-              <button
-                className={`col-header ${activeColumn === col.id ? 'open' : ''}`}
-                onClick={() => handleColumnClick(col.id)}
-              >
-                {col.label.toUpperCase()}
-                <span className="chevron" aria-hidden="true">
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                  </svg>
-                </span>
-              </button>
-
-              {activeColumn === col.id && (
-                <ul className="col-items">
-                  {col.items.map((item) => (
-                    <li key={item.id}>
-                      <button
-                        className={`item ${activeItem?.id === item.id ? 'selected' : ''}`}
-                        onClick={() => handleItemClick(item)}
-                      >
-                        {item.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="content-area" style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}>
-          <div className="content-left">
-            {activeItem ? (
-              <div className="detail-panel">
-                <p className="detail-label">
-                  {columns.find((c) => c.items.some((i) => i.id === activeItem.id))?.label} — {activeItem.label}
-                </p>
-                <h2 className="detail-title">{activeItem.title}</h2>
-                {activeItem.body && activeItem.body.split('\n\n').map((para, i) => (
-                  <p key={i} className="detail-body">{para}</p>
-                ))}
-                {activeItem.link && (
-                  <a
-                    href={activeItem.link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="detail-link"
-                  >
-                    {activeItem.id === 'linkedin' && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle', position: 'relative', top: '-1px' }}>
-                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                      </svg>
-                    )}
-                    {activeItem.link.label}
-                  </a>
-                )}
-              </div>
-            ) : (
-              <p className="summary-text">
-                <strong>Student, researcher, builder.</strong> <br /> 
-                Studying Software Engineering at LSU, researching at Pennington Biomedical, and building toward a future in AI.
-              </p>
-            )}
-          </div>
-
-          <div className={activeItem?.pdf ? 'content-right-pdf' : activeItem?.logo ? 'content-right' : activeItem?.images?.length > 1 ? 'content-right-collage' : activeItem?.images?.length === 1 ? 'content-right-item' : 'content-right'}>
-            {activeItem?.pdf ? (
-              <iframe
-                src={activeItem.pdf + '#toolbar=0&navpanes=0&scrollbar=0'}
-                className="pdf-embed"
-                title="Resume"
-              />
-            ) : activeItem?.logo ? (
-              <img src="/favicon.svg" alt="MB" className="logo-display" loading="lazy" />
-            ) : activeItem?.images?.length > 1 ? (
-              <div className="photo-collage">
-                {activeItem.images.map((img, i) => (
-                  <img key={i} src={img} alt={activeItem.label} className={`${activeItem.collageStyle}-img-${i + 1}`} loading="lazy" />
-                ))}
-              </div>
-            ) : activeItem?.images?.length === 1 ? (
-              <img
-                src={activeItem.images[0]}
-                alt={activeItem.label}
-                className="item-image"
-                loading="lazy"
-              />
-            ) : (
-              photos.map((photo, i) => (
-                <img
-                  key={i}
-                  src={photo}
-                  alt="Malek Badawi"
-                  className="personality-photo"
-                  style={{ opacity: i === currentPhoto ? 1 : 0, transition: 'opacity 0.8s ease' }}
-                  loading="lazy"
-                />
-              ))
-            )}
-          </div>
-        </div>
+    <>
+      <a className="skip" href="#main">Skip to content</a>
+      <Header shown={headerShown} columns={columns} resume={contact.items.find((i) => i.id === 'resume')} />
+      <main id="main">
+        <Hero
+          ref={heroRef}
+          room={roomImg}
+          headshot={headshot}
+          line={summary.line}
+          index={[roles, education, projects]}
+          contact={contact}
+        />
+        <Intro heading={summary.lead} photos={photos} />
+        <Roles column={roles} />
+        <Education column={education} />
+        <Projects column={projects} />
+        <Contact column={contact} />
       </main>
-
-      <footer className="footer">
-        © 2026 Malek Badawi
-      </footer>
-    </div>
+      <Footer photo={photo1} columns={columns} contact={contact} />
+    </>
   )
 }

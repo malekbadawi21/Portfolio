@@ -1,18 +1,91 @@
+/* Fonts: self-hosted latin subsets (SIL Open Font License). */
+@font-face {
+  font-family: 'Imbue';
+  src: url('./assets/fonts/imbue-latin-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Albert Sans';
+  src: url('./assets/fonts/albert-sans-latin-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Colour: one dark room, one light ink, gold on the action only. */
+  --bg: #0c0a08;
+  --surface: #1b1714;
+  --ink: #efedea;
+  --muted: #a39d94;
+  --accent: #c9a45a;
+  --accent-hover: #d9b56b;
+  --accent-ink: #0c0a08;
+
+  /* The one inverted section. */
+  --paper: #e4e2de;
+  --paper-ink: #0c0a08;
+  --paper-muted: #57514a;
+  --paper-accent: #7a5c1e;
+
+  /* Type */
+  --font-display: 'Imbue', 'Times New Roman', serif;
+  --font-text: 'Albert Sans', 'Helvetica Neue', Arial, sans-serif;
+
+  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --step-head: clamp(2.25rem, 1.3rem + 3.2vw, 4rem);
+  --step-display: clamp(3.5rem, 7vw, 6.5rem);
+
+  /* Space */
+  --margin: clamp(1rem, 2.2vw, 2rem);
+  --gutter: clamp(0.75rem, 1.4vw, 1.5rem);
+  --section-gap: clamp(6rem, 12vw, 11rem);
+  --header-h: 64px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur: 320ms;
+  --dur-slow: 720ms;
+
+  color-scheme: dark;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html, body, #root {
-  height: 100%;
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
 }
 
 body {
-  background: #f8f7f5;
-  color: #111111;
-  font-family: 'Helvetica Neue', Inter, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-body);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+img, iframe {
+  display: block;
+  max-width: 100%;
 }
 
 a {
@@ -26,5 +99,19 @@ button {
   cursor: pointer;
   font: inherit;
   color: inherit;
-  padding: 0;
 }
+
+ul { list-style: none; }
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+h1, h2, h3 { font-weight: 400; text-wrap: balance; }
+p { text-wrap: pretty; }
