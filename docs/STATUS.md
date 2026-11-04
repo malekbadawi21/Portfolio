@@ -15,19 +15,30 @@ The site content was updated on 2026-11-03 to match the current resume (branch `
 | Contact | Email, LinkedIn, Resume (`public/MalekBadawiResumePortfolio.pdf`) |
 
 ## In progress
-- UI redesign, explored as two directions on separate branches. Each is reviewed on its own Vercel preview before one is chosen — Malek
-  - `redesign-taste`: full redesign with new art direction
-  - `redesign-impeccable`: keeps the current concept and improves it (typography, hierarchy, motion, mobile, polish)
+- UI redesign, new approach to be decided — Malek
+  - The first two directions were built, revised once each, and **not adopted**. Their branches stay on GitHub for reference:
+    - `redesign-taste`: full redesign (round 1: dark editorial; round 2: light "engineering" direction)
+    - `redesign-impeccable`: kept the current concept (round 1: refined light layout; round 2: "drafting-sheet" direction with IBM Plex)
+  - What worked and should carry forward:
+    - all work visible on one scrolling page
+    - the image load-in treatment
+    - a dash marker plus bold weight on the selected item
+  - What didn't work:
+    - display fonts and colors that read as editorial or lifestyle rather than technical
+    - a hero card over a busy photo
+    - floating landing letters
+    - scrolling past the navigation
+    - too much empty white space
+    - weak contact views
 
 ## Up next
-1. Build both redesign branches from the updated `main` and compare their Vercel previews on desktop and phone.
-2. Both redesigns must fix the current layout limits:
+1. Choose a new approach for the redesign and build it from `main`.
+2. Whatever the approach, fix the current layout limits:
    - The home view is fixed at one screen height and can't scroll, so long text and images get clipped.
    - On phones, images below the text are cut off.
    - At 1280×720, some entries (ADA, LSU) are already clipped.
-3. Merge the chosen direction into `main`.
-4. Add images for the entries that don't have their own yet: LSU Senate, Community Coffee, PFT Navigator, MRI Motion Agent.
-5. Cleanup:
+3. Add images for the entries that don't have their own yet: LSU Senate, Community Coffee, PFT Navigator, MRI Motion Agent.
+4. Cleanup:
    - compress large images (golf GIF 5.3 MB, Pennington photo 2.5 MB, ADA logo 1.5 MB)
    - remove the unused `uclImg1` import (lint warning)
    - remove the unused All You Can Eat images and their CSS
