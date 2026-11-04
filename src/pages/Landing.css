@@ -1,22 +1,39 @@
-.landing {
-  --photo-h: min(80svh, calc(100svh - 2 * var(--nav-h)));
+.hero {
   position: relative;
-  height: 100svh;
-  min-height: 480px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--gutter);
-  padding: var(--nav-h) var(--gutter) 0;
+  height: calc(100svh - var(--bar-h));
+  min-height: 540px;
+  padding: calc(var(--gutter) * 1.5) var(--gutter) var(--gutter);
+  overflow: hidden;
 }
 
-.landing-name {
-  font-size: clamp(64px, 10.5vw, 168px);
-  font-weight: 300;
-  letter-spacing: -0.03em;
-  color: var(--ink-soft);
-  line-height: 1;
-  animation: name-in 700ms var(--ease-out) both;
+/* 12-column drafting grid behind the hero. */
+.hero-grid {
+  position: absolute;
+  inset: 0 var(--gutter);
+  border-inline: 1px solid var(--line-soft);
+  background-image: linear-gradient(to right, var(--line-soft) 1px, transparent 1px);
+  background-size: calc(100% / 12) 100%;
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.hero-name {
+  grid-column: 1 / 9;
+  grid-row: 1;
+  align-self: end;
+  padding-left: 0.04em;
+  font-size: clamp(84px, 12.5vw, 200px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+  color: var(--ink);
 }
 
 .name-line {
@@ -24,102 +41,104 @@
   white-space: nowrap;
 }
 
-.letter-mb,
-.letter-dissolve {
+.initial {
+  color: var(--accent);
+}
+
+.caret {
   display: inline-block;
-  line-height: 1;
+  width: 0.07em;
+  height: 0.74em;
+  margin-left: 0.05em;
+  background: var(--accent);
+  vertical-align: -0.02em;
+  animation: caret-blink 1.05s steps(1, end) infinite;
 }
 
-/* Once App has measured the letters, the flying copies draw the M and B. */
-[data-flying='on'] .letter-mb {
-  opacity: 0;
+@keyframes caret-blink {
+  50% { opacity: 0; }
 }
 
-[data-flying='off'] .letter-mb {
-  opacity: max(0, calc(1 - var(--p) * 2.5));
+.hero-summary {
+  grid-column: 1 / 6;
+  grid-row: 2;
+  margin-top: clamp(20px, 3.5svh, 40px);
+  padding-left: 4px;
+  font-size: clamp(17px, 0.8rem + 0.6vw, 22px);
+  line-height: 1.45;
+  color: var(--ink-2);
+  max-width: 34ch;
+  text-wrap: pretty;
 }
 
-/* The rest of the name dissolves toward its initial: fade, blur, and a small pull left. */
-.letter-dissolve {
-  opacity: max(0, calc(1 - var(--p) * 2.6));
-  filter: blur(calc(min(var(--p) * 2.6, 1) * 10px));
-  transform: translateX(calc(var(--p) * -0.18em));
-  transform-origin: left center;
+.hero-summary strong {
+  font-weight: 600;
+  color: var(--ink);
 }
 
-.landing-photo {
-  width: min(52%, calc(var(--photo-h) * 0.8));
-  height: auto;
+.hero-photo {
+  grid-column: 9 / 13;
+  grid-row: 1 / 3;
+  align-self: end;
+  justify-self: end;
+  width: 100%;
+  max-height: 100%;
   aspect-ratio: 1023 / 1279;
-  object-fit: cover;
+  border: 1px solid var(--frame);
   background: var(--placeholder);
-  animation: photo-in 1000ms var(--ease-out) 120ms both;
+  animation: photo-in 900ms var(--ease-out) 150ms both;
 }
 
-.scroll-arrow {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  translate: -50% 0;
-  color: var(--ink-soft);
-  opacity: max(0, calc(1 - var(--p) * 6));
-  animation: nudge 2.4s ease-in-out infinite;
-}
-
-@keyframes name-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 @keyframes photo-in {
-  from {
-    clip-path: inset(100% 0 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-@keyframes nudge {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0); }
 }
 
 @media (max-width: 768px) {
-  .landing {
-    --photo-h: calc(100svh - var(--nav-h) - 280px);
+  .hero {
+    height: auto;
+    min-height: calc(100svh - var(--bar-h));
+    padding: 20px var(--gutter) 24px;
+  }
+
+  .hero-grid {
+    background-size: calc(100% / 4) 100%;
+  }
+
+  .hero-inner {
+    display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 28px;
-    padding: var(--nav-h) var(--gutter) 64px;
-    min-height: 560px;
+    gap: 20px;
   }
 
-  .landing-name {
-    font-size: clamp(52px, 17vw, 88px);
-    text-align: center;
+  .hero-name {
+    font-size: clamp(64px, 23vw, 110px);
   }
 
-  .landing-photo {
-    width: min(100%, calc(var(--photo-h) * 0.8));
+  .hero-summary {
+    margin-top: 0;
+    font-size: 17px;
   }
 
-  .scroll-arrow {
-    bottom: 16px;
+  .hero-photo {
+    align-self: flex-start;
+    justify-self: auto;
+    width: min(100%, calc(44svh * 0.8));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing-name,
-  .landing-photo,
-  .scroll-arrow {
+  .caret {
     animation: none;
   }
 
-  .letter-dissolve {
-    filter: none;
-    transform: none;
+  .hero-photo {
+    animation: none;
   }
 }

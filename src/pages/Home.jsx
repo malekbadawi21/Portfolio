@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import './Home.css'
 
 import penningtonImg from '../assets/PenningtonPics/IMG_3174.jpg'
@@ -107,8 +107,8 @@ const columns = [
 ]
 
 
-// Intrinsic image sizes. Each frame reserves exactly this shape, so images
-// are never cropped and the layout does not jump while they load.
+// Intrinsic image sizes: frames reserve exactly this shape, so images are
+// never cropped and nothing jumps while they load.
 const imageSizes = new Map([
   [penningtonImg, [4032, 3024]],
   [adaImg, [1024, 1024]],
@@ -119,7 +119,22 @@ const imageSizes = new Map([
   [uclImg4, [2078, 1172]],
 ])
 
+// Entries without their own image get a one-dimensional cellular automaton,
+// a different rule and seed for each, instead of a repeated photo.
+const automata = {
+  senate: { rule: 90, seed: 'single' },
+  'community-coffee': { rule: 110, seed: 'random' },
+  'pft-navigator': { rule: 30, seed: 'single' },
+  'mri-motion': { rule: 105, seed: 'random' },
+}
+
+const RESUME_PREVIEW = '/resume-preview.webp'
 const PHOTO_INTERVAL = 3500
+
+const contactColumn = columns.find((c) => c.id === 'contact')
+const flat = columns.flatMap((col, ci) => col.items.map((item, ii) => ({ item, col, ci, ii })))
+const pad = (n) => String(n).padStart(2, '0')
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 function preload(item) {
   item.images?.forEach((src) => {
@@ -128,16 +143,22 @@ function preload(item) {
   })
 }
 
-function mediaKind(item) {
-  if (!item) return 'portraits'
-  if (item.pdf) return 'pdf'
-  if (item.logo) return 'logo'
+function kindOf(item) {
+  if (item.pdf) return 'resume'
+  if (item.logo) return 'contact'
   if (item.images?.length > 1) return 'collage'
   if (item.images?.length === 1) return 'image'
-  return 'portraits'
+  return 'automaton'
 }
 
-// An <img> that fades in once decoded instead of popping in.
+function channelOf(item) {
+  if (item.id === 'email') return { href: `mailto:${item.body}`, text: item.body }
+  return { href: item.link.href, text: item.link.label, external: item.id === 'linkedin', download: item.id === 'resume' }
+}
+
+/* Media ------------------------------------------------------------------- */
+
+// An <img> that fades in once loaded instead of popping in.
 function FadeImg({ className = '', ...props }) {
   const [loaded, setLoaded] = useState(false)
   return (
@@ -183,10 +204,109 @@ function Collage({ item }) {
   )
 }
 
-// Rotating personal photos for the intro and for entries without their own image.
-// Pauses while hovered, while off screen, and while the tab is hidden.
-function Portraits({ index, onAdvance }) {
+function hashString(s) {
+  let h = 2166136261
+  for (const ch of s) {
+    h ^= ch.charCodeAt(0)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+function seededRandom(seed) {
+  let a = seed
+  return () => {
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function runAutomaton({ rule, seed }, id, cols, rows) {
+  const rand = seededRandom(hashString(id))
+  let row = new Uint8Array(cols)
+  if (seed === 'single') row[cols >> 1] = 1
+  else for (let i = 0; i < cols; i++) row[i] = rand() < 0.5 ? 1 : 0
+  const out = [row]
+  for (let r = 1; r < rows; r++) {
+    const next = new Uint8Array(cols)
+    for (let i = 0; i < cols; i++) {
+      const l = row[(i - 1 + cols) % cols]
+      const c = row[i]
+      const rr = row[(i + 1) % cols]
+      next[i] = (rule >> ((l << 2) | (c << 1) | rr)) & 1
+    }
+    out.push(next)
+    row = next
+  }
+  return out
+}
+
+// Draws the automaton row by row, like a computation running; instantly with reduced motion.
+function Automaton({ id }) {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const cols = 56
+    const rows = 70
+    const grid = runAutomaton(automata[id] ?? { rule: 30, seed: 'single' }, id, cols, rows)
+    let frame = 0
+    let start = 0
+
+    function draw(limit) {
+      const { width } = canvas.getBoundingClientRect()
+      const dpr = window.devicePixelRatio || 1
+      const cell = width / cols
+      canvas.width = Math.round(width * dpr)
+      canvas.height = Math.round(cell * rows * dpr)
+      const ctx = canvas.getContext('2d')
+      ctx.scale(dpr, dpr)
+      const style = getComputedStyle(canvas)
+      ctx.fillStyle = style.getPropertyValue('--auto-bg').trim()
+      ctx.fillRect(0, 0, width, cell * rows)
+      ctx.fillStyle = style.getPropertyValue('--auto-ink').trim()
+      const gap = cell > 5 ? 1 : 0.5
+      for (let r = 0; r < limit; r++) {
+        for (let i = 0; i < cols; i++) {
+          if (grid[r][i]) ctx.fillRect(i * cell, r * cell, cell - gap, cell - gap)
+        }
+      }
+    }
+
+    function animate(t) {
+      if (!start) start = t
+      const limit = Math.min(rows, Math.ceil(((t - start) / 900) * rows))
+      draw(limit)
+      if (limit < rows) frame = requestAnimationFrame(animate)
+    }
+
+    if (prefersReducedMotion()) draw(rows)
+    else frame = requestAnimationFrame(animate)
+
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(frame)
+      draw(rows)
+    })
+    ro.observe(canvas)
+    return () => {
+      cancelAnimationFrame(frame)
+      ro.disconnect()
+    }
+  }, [id])
+
+  return (
+    <div className="frame frame-auto">
+      <canvas ref={canvasRef} aria-hidden="true" />
+    </div>
+  )
+}
+
+// Rotating personal photos on the intro. Pauses while hovered, off screen, or in a hidden tab.
+function Portraits() {
   const ref = useRef(null)
+  const [index, setIndex] = useState(0)
   const [hovered, setHovered] = useState(false)
   const [onScreen, setOnScreen] = useState(true)
   const [tabVisible, setTabVisible] = useState(!document.hidden)
@@ -205,9 +325,9 @@ function Portraits({ index, onAdvance }) {
   const running = !hovered && onScreen && tabVisible
   useEffect(() => {
     if (!running) return
-    const id = setInterval(onAdvance, PHOTO_INTERVAL)
+    const id = setInterval(() => setIndex((i) => (i + 1) % photos.length), PHOTO_INTERVAL)
     return () => clearInterval(id)
-  }, [running, onAdvance])
+  }, [running])
 
   return (
     <div
@@ -224,7 +344,7 @@ function Portraits({ index, onAdvance }) {
           className="portrait"
           data-active={i === index}
           aria-hidden={i === index ? undefined : true}
-          loading={i === index ? 'eager' : 'lazy'}
+          loading={i === 0 ? 'eager' : 'lazy'}
           decoding="async"
         />
       ))}
@@ -232,139 +352,353 @@ function Portraits({ index, onAdvance }) {
   )
 }
 
+/* Icons ------------------------------------------------------------------- */
+
+const Chevron = () => (
+  <svg className="chevron" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="square" />
+  </svg>
+)
+
+const Arrow = ({ dir = 'right' }) => (
+  <svg className={`arrow arrow-${dir}`} width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="square" />
+  </svg>
+)
+
+const DownloadIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="M8 2v8.5M4 7l4 4 4-4M2.5 14h11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" />
+  </svg>
+)
+
 const LinkedInIcon = () => (
-  <svg className="link-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
   </svg>
 )
 
-export default function Home() {
-  const [activeColumn, setActiveColumn] = useState(null)
-  const [activeItem, setActiveItem] = useState(null)
-  const [photoIndex, setPhotoIndex] = useState(0)
-  const headerRefs = useRef({})
-  const advancePhoto = useRef(() => setPhotoIndex((i) => (i + 1) % photos.length)).current
+/* Column bar ---------------------------------------------------------------- */
 
-  function handleColumnClick(colId) {
-    setActiveColumn((current) => (current === colId ? null : colId))
+function Bar({ activeItem, openCol, setOpenCol, onPick, onHome }) {
+  const barRef = useRef(null)
+  const triggerRefs = useRef({})
+
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const top = barRef.current.getBoundingClientRect().top
+      barRef.current.dataset.stuck = top <= 0.5 ? 'true' : 'false'
+    }
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!openCol) return
+    const onDown = (e) => {
+      if (!barRef.current.contains(e.target)) setOpenCol(null)
+    }
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return
+      triggerRefs.current[openCol]?.focus()
+      setOpenCol(null)
+    }
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [openCol, setOpenCol])
+
+  function toggle(colId) {
+    if (barRef.current.dataset.stuck !== 'true') onHome()
+    setOpenCol((current) => (current === colId ? null : colId))
   }
-
-  function handleItemClick(item) {
-    setActiveItem((current) => (current?.id === item.id ? null : item))
-  }
-
-  function handleIndexKeyDown(e) {
-    if (e.key !== 'Escape' || !activeColumn) return
-    headerRefs.current[activeColumn]?.focus()
-    setActiveColumn(null)
-  }
-
-  const kind = mediaKind(activeItem)
 
   return (
-    <div className="page">
-      <main className="main">
-        <div className="index" onKeyDown={handleIndexKeyDown}>
-          {columns.map((col) => {
-            const open = activeColumn === col.id
-            const holdsActive = col.items.some((i) => i.id === activeItem?.id)
-            return (
-              <div key={col.id} className="index-col">
-                <button
-                  ref={(el) => { headerRefs.current[col.id] = el }}
-                  className="index-head"
-                  aria-expanded={open}
-                  aria-controls={`list-${col.id}`}
-                  data-current={holdsActive}
-                  onClick={() => handleColumnClick(col.id)}
-                >
-                  <span className="index-head-label">{col.label}</span>
-                  <svg className="chevron" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
-                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                  </svg>
-                </button>
-
-                <div id={`list-${col.id}`} className="index-drawer" data-open={open} inert={!open}>
-                  <ul className="index-list">
-                    {col.items.map((item, i) => (
-                      <li key={item.id} style={{ '--i': i }}>
-                        <button
-                          className="index-item"
-                          aria-pressed={activeItem?.id === item.id}
-                          onClick={() => handleItemClick(item)}
-                          onPointerEnter={() => preload(item)}
-                          onFocus={() => preload(item)}
-                        >
-                          {item.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        <p className="sr-only" aria-live="polite">{activeItem ? activeItem.title : ''}</p>
-
-        <div key={activeItem?.id ?? 'intro'} className={`detail detail--${kind}`} data-intro={!activeItem}>
-          <div className="detail-text">
-            {activeItem ? (
-              <>
-                <h2 className="detail-title">{activeItem.title}</h2>
-                {activeItem.body && activeItem.body.split('\n\n').map((para, i) => (
-                  <p key={i} className="detail-body">
-                    {activeItem.id === 'email' ? (
-                      <a className="detail-email" href={`mailto:${para}`}>{para}</a>
-                    ) : para}
-                  </p>
+    <div className="bar" ref={barRef}>
+      <a className="bar-mark" href="#top" aria-label="Malek Badawi">
+        MB<span className="bar-caret" aria-hidden="true" />
+      </a>
+      {columns.map((col, ci) => {
+        const open = openCol === col.id
+        const current = col.items.find((i) => i.id === activeItem?.id)
+        return (
+          <div key={col.id} className="bar-col">
+            <button
+              ref={(el) => { triggerRefs.current[col.id] = el }}
+              className="trigger"
+              aria-expanded={open}
+              aria-controls={`menu-${col.id}`}
+              data-current={Boolean(current)}
+              onClick={() => toggle(col.id)}
+            >
+              <span className="trigger-index mono">{pad(ci + 1)}</span>
+              <span className="trigger-label mono">{col.label}</span>
+              <span className="trigger-current mono">{current?.label}</span>
+              <Chevron />
+            </button>
+            <div id={`menu-${col.id}`} className="menu" data-open={open} inert={!open}>
+              <ul>
+                {col.items.map((item, ii) => (
+                  <li key={item.id}>
+                    <button
+                      className="menu-item"
+                      aria-pressed={activeItem?.id === item.id}
+                      onClick={() => onPick(item, 'menu')}
+                      onPointerEnter={() => preload(item)}
+                      onFocus={() => preload(item)}
+                    >
+                      <span className="menu-label">{item.label}</span>
+                      <span className="menu-index mono">{pad(ci + 1)}.{pad(ii + 1)}</span>
+                    </button>
+                  </li>
                 ))}
-                {activeItem.link && (
-                  <a
-                    href={activeItem.link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="detail-link"
-                  >
-                    {activeItem.id === 'linkedin' && <LinkedInIcon />}
-                    {activeItem.link.label}
-                  </a>
-                )}
-              </>
-            ) : (
-              <p className="summary-text">
-                <strong>Student, researcher, builder.</strong> <br />
-                Studying Software Engineering at LSU, researching at Pennington Biomedical, and building toward a future in AI.
-              </p>
-            )}
+              </ul>
+            </div>
           </div>
+        )
+      })}
+    </div>
+  )
+}
 
-          <div className="detail-media">
-            {kind === 'pdf' && (
-              <div className="frame frame-pdf">
-                <iframe
-                  src={activeItem.pdf + '#toolbar=0&navpanes=0&scrollbar=0'}
-                  className="pdf-embed"
-                  title="Resume"
-                />
-              </div>
-            )}
-            {kind === 'logo' && (
-              <div className="frame frame-logo">
-                <img src="/favicon.svg" alt="MB" className="logo-display" />
-              </div>
-            )}
-            {kind === 'collage' && <Collage item={activeItem} />}
-            {kind === 'image' && <Framed src={activeItem.images[0]} alt={activeItem.label} />}
-            {kind === 'portraits' && <Portraits index={photoIndex} onAdvance={advancePhoto} />}
-          </div>
+/* Views ------------------------------------------------------------------- */
+
+function Intro({ onPick }) {
+  return (
+    <div className="intro">
+      <div className="directory">
+        {columns.map((col, ci) => (
+          <section key={col.id} className="dir-col">
+            <h2 className="dir-head mono">
+              <span className="dir-index">{pad(ci + 1)}</span>
+              {col.label}
+            </h2>
+            <ul>
+              {col.items.map((item) => (
+                <li key={item.id}>
+                  <button
+                    className="dir-item"
+                    onClick={() => onPick(item, 'directory')}
+                    onPointerEnter={() => preload(item)}
+                    onFocus={() => preload(item)}
+                  >
+                    <span className="dir-label">{item.label}</span>
+                    {item.title !== item.label && <span className="dir-title">{item.title}</span>}
+                    <Arrow />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+      <div className="intro-media">
+        <Portraits />
+      </div>
+    </div>
+  )
+}
+
+function Channels({ activeId }) {
+  return (
+    <ul className="channels">
+      {contactColumn.items.map((item, i) => {
+        const ch = channelOf(item)
+        return (
+          <li key={item.id} data-active={item.id === activeId}>
+            <a
+              href={ch.href}
+              target={ch.external ? '_blank' : undefined}
+              rel={ch.external ? 'noopener noreferrer' : undefined}
+              download={ch.download ? '' : undefined}
+            >
+              <span className="ch-index mono">{pad(i + 1)}</span>
+              <span className="ch-label mono">{item.label}</span>
+              <span className="ch-value">{ch.text}</span>
+              {ch.download ? <DownloadIcon /> : <Arrow />}
+            </a>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+function Body({ item }) {
+  if (!item.body) return null
+  return item.body.split('\n\n').map((para, i) => (
+    <p key={i} className="detail-body">{para}</p>
+  ))
+}
+
+function Pager({ index, onPick }) {
+  const prev = flat[(index - 1 + flat.length) % flat.length]
+  const next = flat[(index + 1) % flat.length]
+  return (
+    <div className="pager">
+      <button className="pager-btn pager-prev" onClick={() => onPick(prev.item, 'pager')}>
+        <span className="pager-meta mono"><Arrow dir="left" /> {pad(prev.ci + 1)} {prev.col.label}</span>
+        <span className="pager-label">{prev.item.label}</span>
+      </button>
+      <button className="pager-btn pager-next" onClick={() => onPick(next.item, 'pager')}>
+        <span className="pager-meta mono">{pad(next.ci + 1)} {next.col.label} <Arrow /></span>
+        <span className="pager-label">{next.item.label}</span>
+      </button>
+    </div>
+  )
+}
+
+function Detail({ entry, titleRef, onPick }) {
+  const { item, col, ci, ii } = entry
+  const kind = kindOf(item)
+  const index = flat.indexOf(entry)
+
+  let text
+  let media
+  if (kind === 'contact') {
+    const ch = channelOf(item)
+    text = (
+      <>
+        <h2 className="detail-title" ref={titleRef} tabIndex={-1}>{item.title}</h2>
+        {item.id === 'email' ? (
+          <a className="big-link" href={ch.href}>{ch.text}</a>
+        ) : (
+          <a className="btn-primary" href={ch.href} target="_blank" rel="noopener noreferrer">
+            <LinkedInIcon />
+            {ch.text}
+          </a>
+        )}
+      </>
+    )
+    media = <Channels activeId={item.id} />
+  } else if (kind === 'resume') {
+    text = (
+      <>
+        <h2 className="detail-title" ref={titleRef} tabIndex={-1}>{item.title}</h2>
+        <a className="btn-primary" href={item.link.href} download>
+          <DownloadIcon />
+          {item.link.label}
+        </a>
+        <p className="file-name mono">{item.pdf.slice(1)}</p>
+      </>
+    )
+    media = (
+      <a className="paper" href={item.pdf} target="_blank" rel="noopener noreferrer" aria-label={item.title}>
+        <FadeImg src={RESUME_PREVIEW} alt="" width="1275" height="1650" />
+      </a>
+    )
+  } else {
+    text = (
+      <>
+        <h2 className="detail-title" ref={titleRef} tabIndex={-1}>{item.title}</h2>
+        <Body item={item} />
+      </>
+    )
+    if (kind === 'collage') media = <Collage item={item} />
+    else if (kind === 'image') media = <Framed src={item.images[0]} alt={item.label} />
+    else media = <Automaton id={item.id} />
+  }
+
+  return (
+    <article className="detail" data-kind={kind}>
+      <div className="detail-meta mono">
+        <span className="meta-index">{pad(ci + 1)}.{pad(ii + 1)}</span>
+        <span className="meta-col">{col.label}</span>
+        <span className="meta-count">{ii + 1} / {col.items.length}</span>
+      </div>
+      <div className="detail-text">{text}</div>
+      <div className="detail-media">{media}</div>
+      <Pager index={index} onPick={onPick} />
+    </article>
+  )
+}
+
+function Footer() {
+  return (
+    <footer className="footer">
+      <p className="footer-copy mono">© 2026 Malek Badawi</p>
+      <ul className="footer-links">
+        {contactColumn.items.map((item) => {
+          const ch = channelOf(item)
+          return (
+            <li key={item.id}>
+              <a
+                href={ch.href}
+                target={ch.external ? '_blank' : undefined}
+                rel={ch.external ? 'noopener noreferrer' : undefined}
+                download={ch.download ? '' : undefined}
+              >
+                {ch.text}
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </footer>
+  )
+}
+
+/* Page -------------------------------------------------------------------- */
+
+export default function Home() {
+  const [activeId, setActiveId] = useState(null)
+  const [openCol, setOpenCol] = useState(null)
+  const homeRef = useRef(null)
+  const titleRef = useRef(null)
+  const focusTitle = useRef(false)
+
+  const entry = flat.find((e) => e.item.id === activeId) ?? null
+
+  const scrollToHome = useCallback(() => {
+    const top = homeRef.current.offsetTop
+    if (Math.abs(window.scrollY - top) < 2) return
+    window.scrollTo({ top, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+  }, [])
+
+  const pick = useCallback((item, source) => {
+    setOpenCol(null)
+    // Choosing the open entry again from its menu closes it (back to the overview).
+    setActiveId((current) => (source === 'menu' && current === item.id ? null : item.id))
+    // Directory and pager buttons unmount on change, so focus moves to the new title.
+    focusTitle.current = source !== 'menu'
+    scrollToHome()
+  }, [scrollToHome])
+
+  useEffect(() => {
+    if (focusTitle.current && titleRef.current) titleRef.current.focus({ preventScroll: true })
+    focusTitle.current = false
+  }, [activeId])
+
+  return (
+    <div className="home snap" id="home" ref={homeRef}>
+      <Bar
+        activeItem={entry?.item}
+        openCol={openCol}
+        setOpenCol={setOpenCol}
+        onPick={pick}
+        onHome={scrollToHome}
+      />
+      <main className="sheet">
+        <p className="sr-only" aria-live="polite">{entry ? entry.item.title : ''}</p>
+        <div className="view" key={activeId ?? 'intro'}>
+          {entry ? <Detail entry={entry} titleRef={titleRef} onPick={pick} /> : <Intro onPick={pick} />}
         </div>
       </main>
-
-      <footer className="footer">
-        © 2026 Malek Badawi
-      </footer>
+      <Footer />
     </div>
   )
 }
