@@ -4,9 +4,6 @@ import './Home.css'
 import penningtonImg from '../assets/PenningtonPics/IMG_3174.jpg'
 import adaImg from '../assets/ADAPics/ADAlogo.png'
 import uclImg1 from '../assets/UCLPics/IMG_3208.JPG'
-import ayceImg1 from '../assets/ProjectPics/AYCE1.png'
-import ayceImg2 from '../assets/ProjectPics/AYCE2.png'
-import ayceImg3 from '../assets/ProjectPics/AYCE3.png'
 import uclImg2 from '../assets/UCLPics/IMG_3218.jpeg'
 import uclImg3 from '../assets/UCLPics/UCLSLIDE1.png'
 import uclImg4 from '../assets/UCLPics/UCLSLIDE2.png'
@@ -29,16 +26,22 @@ const columns = [
       {
         id: 'pennington',
         label: 'Pennington',
-        title: 'Student Researcher, Pennington Biomedical',
-        body: 'Since March 2026, I\'ve been working on a study exploring how brain age can be derived from gray and white matter volumes and what it means when your brain ages faster than you do. My work has spanned quality control on nearly 150 FreeSurfer brain scans, restructuring the research file system to BIDS format, and preparing the groundwork for the predictive model we\'re building next. It sits at the intersection of neuroscience and machine learning, which is exactly where I want to be.',
+        title: 'Undergraduate Researcher, Pennington Biomedical',
+        body: 'Since March 2026, I\'ve been working on a study of how brain age can be derived from gray and white matter volumes, and what it means when your brain ages faster than you do. I showed the lab\'s BRISQUE pipeline missed MRI-specific artifacts like motion, helping move the lab to MRIQC. Since then, I\'ve organized FreeSurfer outputs for about 460 subjects and built batch workflows across seven studies.',
         images: [penningtonImg],
       },
       {
         id: 'ada',
         label: 'ADA',
-        title: 'Data & Software Engineering Intern, Automotive Data Analytics',
-        body: 'From September 2025 to June 2026, I interned at ADA, a company focused on Automotive Data Analytics. Working within Microsoft Fabric\'s Lakehouse Architecture, I built silver data tables that unified customer data across dealerships and organizations, combining identifiers, contact information, and demographic ranges into clean, queryable layers. I also developed a two-factor authentication system using Microsoft Azure, supporting both email and phone verification. Real tools, real data, real users.',
+        title: 'Software & Data Engineering Intern, Automotive Data Analytics',
+        body: 'From September 2025 to June 2026, I interned remotely at Automotive Data Analytics. I built Microsoft Fabric ETL pipelines that unified 10,000+ customer records from multiple dealership systems into one lakehouse, with automatic refreshes feeding Power BI reports. I also built a two-factor authentication service on Azure Logic Apps, Azure Table Storage, and Twilio, sending one-time codes by email and SMS and handling code expiration and session validation. Real tools, real data, real users.',
         images: [adaImg],
+      },
+      {
+        id: 'senate',
+        label: 'Senate',
+        title: 'Student Government Senator, LSU',
+        body: 'Since August 2025, I\'ve represented the College of Engineering as an elected senator in LSU Student Government. I serve on the Student Auxiliary Services and Academic Affairs committees, contributing to initiatives on campus technology resources and ethical AI policy.',
       },
     ],
   },
@@ -50,7 +53,7 @@ const columns = [
         id: 'lsu',
         label: 'LSU',
         title: 'Louisiana State University',
-        body: 'Studying Software Engineering at Louisiana State University with minors in Mathematics and Honors Research, as a Stamps Scholar. I\'ve served as a Student Government senator for the past year and am currently building toward a focus in AI and machine learning.\n\nThis fall, I\'m taking LLM Application Development! A project-based course where cross-functional teams build LLM-enabled applications for real Louisiana businesses. The curriculum covers probabilistic language models, tokenization, agentic system design, human-AI interaction, and local model fine-tuning. It\'s exactly the kind of applied, state-of-the-art work I want to be doing.',
+        body: 'Studying Software Engineering at Louisiana State University with minors in Mathematics and Honors Research, as a Stamps Scholar. I\'m building toward a focus in AI and machine learning.\n\nThis fall, I\'m taking LLM Application Development! A project-based course where cross-functional teams build LLM-enabled applications for real Louisiana businesses. The curriculum covers probabilistic language models, tokenization, agentic system design, human-AI interaction, and local model fine-tuning. It\'s exactly the kind of applied, state-of-the-art work I want to be doing.',
         images: [lsuImg],
       },
       {
@@ -68,12 +71,22 @@ const columns = [
     label: 'Projects',
     items: [
       {
-        id: 'ayce',
-        label: 'AYCE',
-        title: 'All You Can Eat',
-        body: 'All You Can Eat started as a personal frustration. Eating healthy as a college student means staring at a fast food menu trying to do nutrition math in your head and usually giving up. AYCE is a web app that takes a plain-English goal like "high protein, low carb" and finds the best meal at whatever restaurant you\'re at. Still early, but it\'s solving a real problem I run into every day.',
-        images: [ayceImg1, ayceImg2, ayceImg3],
-        collageStyle: 'ayce',
+        id: 'community-coffee',
+        label: 'Community Coffee',
+        title: 'Community Coffee Onboarding Platform',
+        body: 'Through LSU\'s Applied Intelligence Lab, I\'m on a three-person team building an employee onboarding platform for Community Coffee. Instead of hardcoding a checklist for every job, each role answers yes/no questions and the platform computes its checklist from a shared task catalog. I own that data model and checklist generation, plus the pages managers and new hires use; my teammates built an AI onboarding buddy and an admin dashboard. Built with React, FastAPI, and PostgreSQL, with tests and CI on GitHub Actions.',
+      },
+      {
+        id: 'pft-navigator',
+        label: 'PFT Navigator',
+        title: 'PFT Navigator',
+        body: 'PFT Navigator makes LSU\'s 3D digital twin of Patrick F. Taylor Hall useful for students: explore the building, search for a room, course, professor, or department, get a route, then walk it in first person. As Git Master on our CSC 3380 team, I build navigation features in Unreal Engine with Blueprints and UMG, including destination selection, room highlighting, floor-path visualization, and guided routing, all driven by structured JSON data connected to the digital twin.',
+      },
+      {
+        id: 'mri-motion',
+        label: 'MRI Motion',
+        title: 'MRI Motion Agent',
+        body: 'Can a vision model tell when an MRI scan is ruined by head motion? That\'s the question behind my CSC 4700 project. Using MR-ART, an open dataset of 436 expert-rated brain scans, I render slice montages, including a boosted view that exposes faint artifacts, and ask vision models to rate each scan\'s clinical usability. Early results: the models rank scans correctly but rarely call one unusable, while a regression on MRIQC metrics catches the worst scans but blurs good from medium. That\'s why I\'m building an agent that combines both.',
       },
       {
         id: 'golf',
