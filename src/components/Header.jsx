@@ -1,4 +1,5 @@
 import JumpMenu from './JumpMenu'
+import DownloadIcon from './DownloadIcon'
 
 export default function Header({ columns, resume, active }) {
   return (
@@ -15,8 +16,9 @@ export default function Header({ columns, resume, active }) {
         ))}
       </nav>
       <JumpMenu columns={columns} />
-      <a className="button button-small header-action" href={resume.link.href} target="_blank" rel="noopener noreferrer">
+      <a className="button button-small button-quiet header-action" href={resume.link.href} target="_blank" rel="noopener noreferrer">
         {resume.link.label}
+        <DownloadIcon />
       </a>
     </header>
   )

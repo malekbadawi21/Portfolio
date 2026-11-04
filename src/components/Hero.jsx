@@ -1,5 +1,6 @@
 import LinkedInIcon from './LinkedInIcon'
 import ScanImage from './ScanImage'
+import DownloadIcon from './DownloadIcon'
 
 // Name, role and the one-line summary first; the index and the headshot
 // sit on the same grid beside them.
@@ -21,6 +22,7 @@ export default function Hero({ headshot, role, line, columns, contact }) {
         <div className="hero-actions">
           <a className="button" href={resume.link.href} target="_blank" rel="noopener noreferrer">
             {resume.link.label}
+            <DownloadIcon />
           </a>
           <a className="text-link" href={`mailto:${email.body}`}>{email.body}</a>
           <a className="text-link" href={linkedin.link.href} target="_blank" rel="noopener noreferrer">

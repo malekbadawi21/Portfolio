@@ -7,6 +7,7 @@ import Section from '../components/Section'
 import Gallery from '../components/Gallery'
 import Footer from '../components/Footer'
 import LinkedInIcon from '../components/LinkedInIcon'
+import DownloadIcon from '../components/DownloadIcon'
 import { observeScans } from '../lib/scan'
 
 import headshot from '../assets/MalekBadawiPortfolioPic.png'
@@ -162,7 +163,10 @@ function ContactBand({ column, n }) {
       </div>
       <div className="contact-cell contact-cell-resume" id={resume.id} data-reveal style={{ '--d': 2 }}>
         {meta(resume)}
-        <a className="button" href={resume.link.href} target="_blank" rel="noopener noreferrer">{resume.link.label}</a>
+        <a className="button" href={resume.link.href} target="_blank" rel="noopener noreferrer">
+          {resume.link.label}
+          <DownloadIcon />
+        </a>
         <figure className="resume-page">
           <iframe src={resume.pdf + '#toolbar=0&navpanes=0&scrollbar=0&view=FitH'} title={resume.title} loading="lazy" tabIndex={-1} />
         </figure>

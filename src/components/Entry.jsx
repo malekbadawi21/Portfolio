@@ -35,7 +35,7 @@ export default function Entry({ number, item, children, aside }) {
       </div>
       <div className="entry-main" data-reveal style={{ '--d': 1 }}>
         <h3 className="entry-title">{item.title}</h3>
-        {children ?? <Rich text={item.body} />}
+        <div className="entry-body">{children ?? <Rich text={item.body} />}</div>
       </div>
       {aside ?? <Media item={item} />}
     </article>

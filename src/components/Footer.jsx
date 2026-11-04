@@ -7,8 +7,8 @@ export default function Footer({ columns, contact }) {
         {columns.map((col) => (
           <a key={col.id} href={`#${col.id}`}>{col.label}</a>
         ))}
-        <a href={`mailto:${email.body}`}>{email.body}</a>
       </nav>
+      <a className="footer-email" href={`mailto:${email.body}`}>{email.body}</a>
     </footer>
   )
 }
