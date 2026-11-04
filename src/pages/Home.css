@@ -382,9 +382,10 @@
   gap: 14px;
   padding: clamp(28px, 3vw, 40px) 0;
 }
-.contact-cell-email { grid-column: 1 / 8; }
-.contact-cell-linkedin { grid-column: 8 / 10; }
-.contact-cell-resume { grid-column: 10 / 13; }
+.contact-cell-email { grid-column: 1 / 7; }
+.contact-cell-linkedin { grid-column: 7 / 9; }
+.contact-cell-github { grid-column: 9 / 11; }
+.contact-cell-resume { grid-column: 11 / 13; }
 .contact-cell .entry-meta { padding-top: 0; }
 
 .contact-email {
@@ -769,8 +770,9 @@ html.motion [data-reveal].is-in {
   .media { --media-h: 380px; }
   .media-set { max-width: 420px; }
   .contact-cell-email { grid-column: 1 / -1; }
-  .contact-cell-linkedin { grid-column: 1 / 7; padding-top: 0; }
-  .contact-cell-resume { grid-column: 7 / 13; padding-top: 0; }
+  .contact-cell-linkedin { grid-column: 1 / 5; padding-top: 0; }
+  .contact-cell-github { grid-column: 5 / 9; padding-top: 0; }
+  .contact-cell-resume { grid-column: 9 / 13; padding-top: 0; }
 }
 
 /* ------------------------------------------------------------------
@@ -823,6 +825,7 @@ html.motion [data-reveal].is-in {
   .contact-cell,
   .contact-cell-email,
   .contact-cell-linkedin,
+  .contact-cell-github,
   .contact-cell-resume { grid-column: 1; padding: 24px 0; }
   .contact-cell + .contact-cell { border-top: 1px solid var(--line); }
   .resume-page { display: none; }

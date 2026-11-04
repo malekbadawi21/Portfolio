@@ -7,6 +7,7 @@ import Section from '../components/Section'
 import Gallery from '../components/Gallery'
 import Footer from '../components/Footer'
 import LinkedInIcon from '../components/LinkedInIcon'
+import GitHubIcon from '../components/GitHubIcon'
 import DownloadIcon from '../components/DownloadIcon'
 import { observeScans } from '../lib/scan'
 
@@ -124,6 +125,7 @@ const columns = [
     items: [
       { id: 'email', label: 'Email', title: 'Email', body: 'malekbadawi21@gmail.com', logo: true },
       { id: 'linkedin', label: 'LinkedIn', title: 'LinkedIn', body: '', link: { href: 'https://www.linkedin.com/in/malekbadawi21/', label: 'View LinkedIn Profile' }, logo: true },
+      { id: 'github', label: 'GitHub', title: 'GitHub', body: '', link: { href: 'https://github.com/malekbadawi21', label: 'View GitHub Profile' }, logo: true },
       { id: 'resume', label: 'Resume', title: 'Resume', body: '', link: { href: '/MalekBadawiResumePortfolio.pdf', label: 'Download Resume' }, pdf: '/MalekBadawiResumePortfolio.pdf' },
     ],
   },
@@ -137,10 +139,11 @@ const summary = {
 
 const byId = (id) => columns.find((c) => c.id === id)
 
-// Contact as one band of three cells: the address, LinkedIn, the resume.
+// Contact as one band of four cells: the address, LinkedIn, GitHub, the resume.
 function ContactBand({ column, n }) {
   const email = column.items.find((i) => i.id === 'email')
   const linkedin = column.items.find((i) => i.id === 'linkedin')
+  const github = column.items.find((i) => i.id === 'github')
   const resume = column.items.find((i) => i.id === 'resume')
   const meta = (item) => (
     <div className="entry-meta">
@@ -161,7 +164,14 @@ function ContactBand({ column, n }) {
           {linkedin.link.label}
         </a>
       </div>
-      <div className="contact-cell contact-cell-resume" id={resume.id} data-reveal style={{ '--d': 2 }}>
+      <div className="contact-cell contact-cell-github" id={github.id} data-reveal style={{ '--d': 2 }}>
+        {meta(github)}
+        <a className="text-link" href={github.link.href} target="_blank" rel="noopener noreferrer">
+          <GitHubIcon />
+          {github.link.label}
+        </a>
+      </div>
+      <div className="contact-cell contact-cell-resume" id={resume.id} data-reveal style={{ '--d': 3 }}>
         {meta(resume)}
         <a className="button" href={resume.link.href} target="_blank" rel="noopener noreferrer">
           {resume.link.label}

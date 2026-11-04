@@ -1,4 +1,5 @@
 import LinkedInIcon from './LinkedInIcon'
+import GitHubIcon from './GitHubIcon'
 import ScanImage from './ScanImage'
 import DownloadIcon from './DownloadIcon'
 
@@ -7,6 +8,7 @@ import DownloadIcon from './DownloadIcon'
 export default function Hero({ headshot, role, line, columns, contact }) {
   const email = contact.items.find((i) => i.id === 'email')
   const linkedin = contact.items.find((i) => i.id === 'linkedin')
+  const github = contact.items.find((i) => i.id === 'github')
   const resume = contact.items.find((i) => i.id === 'resume')
 
   return (
@@ -28,6 +30,10 @@ export default function Hero({ headshot, role, line, columns, contact }) {
           <a className="text-link" href={linkedin.link.href} target="_blank" rel="noopener noreferrer">
             <LinkedInIcon />
             {linkedin.link.label}
+          </a>
+          <a className="text-link" href={github.link.href} target="_blank" rel="noopener noreferrer">
+            <GitHubIcon />
+            {github.link.label}
           </a>
         </div>
       </div>
