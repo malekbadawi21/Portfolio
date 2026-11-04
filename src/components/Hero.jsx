@@ -39,7 +39,7 @@ export default function Hero({ headshot, role, line, columns, contact }) {
       </nav>
 
       <figure className="hero-photo">
-        <img src={headshot} alt="Malek Badawi" width="1023" height="1279" />
+        <img src={headshot} alt="Malek Badawi" width="317" height="359" />
         <span className="scan" aria-hidden="true" />
       </figure>
     </section>

@@ -8,7 +8,7 @@ import Gallery from '../components/Gallery'
 import Footer from '../components/Footer'
 import LinkedInIcon from '../components/LinkedInIcon'
 
-import headshot from '../assets/HeadShot3.jpg'
+import headshot from '../assets/MalekBadawiPortfolioPic.png'
 
 import penningtonImg from '../assets/PenningtonPics/IMG_3174.jpg'
 import adaImg from '../assets/ADAPics/ADAlogo.png'
