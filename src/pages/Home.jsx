@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './Home.css'
 
 import penningtonImg from '../assets/PenningtonPics/IMG_3174.jpg'
 import adaImg from '../assets/ADAPics/ADAlogo.png'
-import uclImg1 from '../assets/UCLPics/IMG_3208.JPG'
 import uclImg2 from '../assets/UCLPics/IMG_3218.jpeg'
 import uclImg3 from '../assets/UCLPics/UCLSLIDE1.png'
 import uclImg4 from '../assets/UCLPics/UCLSLIDE2.png'
@@ -107,94 +106,219 @@ const columns = [
   },
 ]
 
+
+// Intrinsic image sizes. Each frame reserves exactly this shape, so images
+// are never cropped and the layout does not jump while they load.
+const imageSizes = new Map([
+  [penningtonImg, [4032, 3024]],
+  [adaImg, [1024, 1024]],
+  [lsuImg, [1551, 1012]],
+  [golfGif, [500, 893]],
+  [uclImg2, [900, 1200]],
+  [uclImg3, [2080, 1174]],
+  [uclImg4, [2078, 1172]],
+])
+
+const PHOTO_INTERVAL = 3500
+
+function preload(item) {
+  item.images?.forEach((src) => {
+    const img = new Image()
+    img.src = src
+  })
+}
+
+function mediaKind(item) {
+  if (!item) return 'portraits'
+  if (item.pdf) return 'pdf'
+  if (item.logo) return 'logo'
+  if (item.images?.length > 1) return 'collage'
+  if (item.images?.length === 1) return 'image'
+  return 'portraits'
+}
+
+// An <img> that fades in once decoded instead of popping in.
+function FadeImg({ className = '', ...props }) {
+  const [loaded, setLoaded] = useState(false)
+  return (
+    <img
+      {...props}
+      className={`${className} fade-img`}
+      data-loaded={loaded}
+      decoding="async"
+      ref={(el) => {
+        if (el?.complete && el.naturalWidth && !loaded) setLoaded(true)
+      }}
+      onLoad={() => setLoaded(true)}
+    />
+  )
+}
+
+function Framed({ src, alt }) {
+  const [w, h] = imageSizes.get(src) ?? [4, 3]
+  return (
+    <div className="frame frame-image" style={{ '--ar': w / h }}>
+      <FadeImg src={src} alt={alt} width={w} height={h} />
+    </div>
+  )
+}
+
+function Collage({ item }) {
+  return (
+    <div className="collage">
+      {item.images.map((img, i) => {
+        const [w, h] = imageSizes.get(img) ?? [4, 3]
+        return (
+          <FadeImg
+            key={i}
+            src={img}
+            alt={item.label}
+            width={w}
+            height={h}
+            className={`collage-img ${item.collageStyle}-img-${i + 1}`}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+// Rotating personal photos for the intro and for entries without their own image.
+// Pauses while hovered, while off screen, and while the tab is hidden.
+function Portraits({ index, onAdvance }) {
+  const ref = useRef(null)
+  const [hovered, setHovered] = useState(false)
+  const [onScreen, setOnScreen] = useState(true)
+  const [tabVisible, setTabVisible] = useState(!document.hidden)
+
+  useEffect(() => {
+    const io = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting))
+    io.observe(ref.current)
+    const onVis = () => setTabVisible(!document.hidden)
+    document.addEventListener('visibilitychange', onVis)
+    return () => {
+      io.disconnect()
+      document.removeEventListener('visibilitychange', onVis)
+    }
+  }, [])
+
+  const running = !hovered && onScreen && tabVisible
+  useEffect(() => {
+    if (!running) return
+    const id = setInterval(onAdvance, PHOTO_INTERVAL)
+    return () => clearInterval(id)
+  }, [running, onAdvance])
+
+  return (
+    <div
+      className="frame frame-portrait"
+      ref={ref}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+    >
+      {photos.map((photo, i) => (
+        <img
+          key={i}
+          src={photo}
+          alt="Malek Badawi"
+          className="portrait"
+          data-active={i === index}
+          aria-hidden={i === index ? undefined : true}
+          loading={i === index ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      ))}
+    </div>
+  )
+}
+
+const LinkedInIcon = () => (
+  <svg className="link-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+  </svg>
+)
+
 export default function Home() {
   const [activeColumn, setActiveColumn] = useState(null)
   const [activeItem, setActiveItem] = useState(null)
-  const [isVisible, setIsVisible] = useState(true)
-  const [currentPhoto, setCurrentPhoto] = useState(0)
-  const currentPhotoRef = useRef(0)
-  const intervalRef = useRef(null)
-
-  function startPhotoInterval() {
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    intervalRef.current = setInterval(() => {
-      const next = (currentPhotoRef.current + 1) % photos.length
-      currentPhotoRef.current = next
-      setCurrentPhoto(next)
-    }, 3500)
-  }
-
-  useEffect(() => {
-    startPhotoInterval()
-    return () => clearInterval(intervalRef.current)
-  }, [])
+  const [photoIndex, setPhotoIndex] = useState(0)
+  const headerRefs = useRef({})
+  const advancePhoto = useRef(() => setPhotoIndex((i) => (i + 1) % photos.length)).current
 
   function handleColumnClick(colId) {
-    if (activeColumn === colId) {
-      setActiveColumn(null)
-    } else {
-      setActiveColumn(colId)
-    }
+    setActiveColumn((current) => (current === colId ? null : colId))
   }
 
   function handleItemClick(item) {
-    const next = item === activeItem ? null : item
-    setIsVisible(false)
-    startPhotoInterval()
-    setTimeout(() => {
-      setActiveItem(next)
-      setTimeout(() => setIsVisible(true), 150)
-    }, 300)
+    setActiveItem((current) => (current?.id === item.id ? null : item))
   }
+
+  function handleIndexKeyDown(e) {
+    if (e.key !== 'Escape' || !activeColumn) return
+    headerRefs.current[activeColumn]?.focus()
+    setActiveColumn(null)
+  }
+
+  const kind = mediaKind(activeItem)
 
   return (
     <div className="page">
-      <hr className="rule" />
-
       <main className="main">
-        <div className="col-grid">
-          {columns.map((col) => (
-            <div key={col.id} className="col">
-              <button
-                className={`col-header ${activeColumn === col.id ? 'open' : ''}`}
-                onClick={() => handleColumnClick(col.id)}
-              >
-                {col.label.toUpperCase()}
-                <span className="chevron" aria-hidden="true">
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+        <div className="index" onKeyDown={handleIndexKeyDown}>
+          {columns.map((col) => {
+            const open = activeColumn === col.id
+            const holdsActive = col.items.some((i) => i.id === activeItem?.id)
+            return (
+              <div key={col.id} className="index-col">
+                <button
+                  ref={(el) => { headerRefs.current[col.id] = el }}
+                  className="index-head"
+                  aria-expanded={open}
+                  aria-controls={`list-${col.id}`}
+                  data-current={holdsActive}
+                  onClick={() => handleColumnClick(col.id)}
+                >
+                  <span className="index-head-label">{col.label}</span>
+                  <svg className="chevron" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
                     <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                   </svg>
-                </span>
-              </button>
+                </button>
 
-              {activeColumn === col.id && (
-                <ul className="col-items">
-                  {col.items.map((item) => (
-                    <li key={item.id}>
-                      <button
-                        className={`item ${activeItem?.id === item.id ? 'selected' : ''}`}
-                        onClick={() => handleItemClick(item)}
-                      >
-                        {item.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
+                <div id={`list-${col.id}`} className="index-drawer" data-open={open} inert={!open}>
+                  <ul className="index-list">
+                    {col.items.map((item, i) => (
+                      <li key={item.id} style={{ '--i': i }}>
+                        <button
+                          className="index-item"
+                          aria-pressed={activeItem?.id === item.id}
+                          onClick={() => handleItemClick(item)}
+                          onPointerEnter={() => preload(item)}
+                          onFocus={() => preload(item)}
+                        >
+                          {item.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )
+          })}
         </div>
 
-        <div className="content-area" style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}>
-          <div className="content-left">
+        <p className="sr-only" aria-live="polite">{activeItem ? activeItem.title : ''}</p>
+
+        <div key={activeItem?.id ?? 'intro'} className={`detail detail--${kind}`} data-intro={!activeItem}>
+          <div className="detail-text">
             {activeItem ? (
-              <div className="detail-panel">
-                <p className="detail-label">
-                  {columns.find((c) => c.items.some((i) => i.id === activeItem.id))?.label} — {activeItem.label}
-                </p>
+              <>
                 <h2 className="detail-title">{activeItem.title}</h2>
                 {activeItem.body && activeItem.body.split('\n\n').map((para, i) => (
-                  <p key={i} className="detail-body">{para}</p>
+                  <p key={i} className="detail-body">
+                    {activeItem.id === 'email' ? (
+                      <a className="detail-email" href={`mailto:${para}`}>{para}</a>
+                    ) : para}
+                  </p>
                 ))}
                 {activeItem.link && (
                   <a
@@ -203,57 +327,37 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="detail-link"
                   >
-                    {activeItem.id === 'linkedin' && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle', position: 'relative', top: '-1px' }}>
-                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                      </svg>
-                    )}
+                    {activeItem.id === 'linkedin' && <LinkedInIcon />}
                     {activeItem.link.label}
                   </a>
                 )}
-              </div>
+              </>
             ) : (
               <p className="summary-text">
-                <strong>Student, researcher, builder.</strong> <br /> 
+                <strong>Student, researcher, builder.</strong> <br />
                 Studying Software Engineering at LSU, researching at Pennington Biomedical, and building toward a future in AI.
               </p>
             )}
           </div>
 
-          <div className={activeItem?.pdf ? 'content-right-pdf' : activeItem?.logo ? 'content-right' : activeItem?.images?.length > 1 ? 'content-right-collage' : activeItem?.images?.length === 1 ? 'content-right-item' : 'content-right'}>
-            {activeItem?.pdf ? (
-              <iframe
-                src={activeItem.pdf + '#toolbar=0&navpanes=0&scrollbar=0'}
-                className="pdf-embed"
-                title="Resume"
-              />
-            ) : activeItem?.logo ? (
-              <img src="/favicon.svg" alt="MB" className="logo-display" loading="lazy" />
-            ) : activeItem?.images?.length > 1 ? (
-              <div className="photo-collage">
-                {activeItem.images.map((img, i) => (
-                  <img key={i} src={img} alt={activeItem.label} className={`${activeItem.collageStyle}-img-${i + 1}`} loading="lazy" />
-                ))}
-              </div>
-            ) : activeItem?.images?.length === 1 ? (
-              <img
-                src={activeItem.images[0]}
-                alt={activeItem.label}
-                className="item-image"
-                loading="lazy"
-              />
-            ) : (
-              photos.map((photo, i) => (
-                <img
-                  key={i}
-                  src={photo}
-                  alt="Malek Badawi"
-                  className="personality-photo"
-                  style={{ opacity: i === currentPhoto ? 1 : 0, transition: 'opacity 0.8s ease' }}
-                  loading="lazy"
+          <div className="detail-media">
+            {kind === 'pdf' && (
+              <div className="frame frame-pdf">
+                <iframe
+                  src={activeItem.pdf + '#toolbar=0&navpanes=0&scrollbar=0'}
+                  className="pdf-embed"
+                  title="Resume"
                 />
-              ))
+              </div>
             )}
+            {kind === 'logo' && (
+              <div className="frame frame-logo">
+                <img src="/favicon.svg" alt="MB" className="logo-display" />
+              </div>
+            )}
+            {kind === 'collage' && <Collage item={activeItem} />}
+            {kind === 'image' && <Framed src={activeItem.images[0]} alt={activeItem.label} />}
+            {kind === 'portraits' && <Portraits index={photoIndex} onAdvance={advancePhoto} />}
           </div>
         </div>
       </main>
