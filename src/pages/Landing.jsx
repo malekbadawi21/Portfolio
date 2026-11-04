@@ -1,4 +1,4 @@
-import photo from '../assets/HeadShot3.jpg'
+import photo from '../assets/MalekBadawiPortfolioPic.png'
 import './Landing.css'
 
 export default function Landing({ progress, nameRef }) {
