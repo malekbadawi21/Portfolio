@@ -1,17 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './Home.css'
 
 import Header from '../components/Header'
 import Hero from '../components/Hero'
-import Intro from '../components/Intro'
-import Roles from '../components/Roles'
-import Education from '../components/Education'
-import Projects from '../components/Projects'
-import Contact from '../components/Contact'
+import Section from '../components/Section'
+import Gallery from '../components/Gallery'
 import Footer from '../components/Footer'
+import LinkedInIcon from '../components/LinkedInIcon'
 
 import headshot from '../assets/HeadShot3.jpg'
-import roomImg from '../assets/PenningtonPics/IMG_3174-room.jpg'
 
 import penningtonImg from '../assets/PenningtonPics/IMG_3174.jpg'
 import adaImg from '../assets/ADAPics/ADAlogo.png'
@@ -28,6 +25,9 @@ import photo4 from '../assets/PersonalityPics/IMG_4404.JPG'
 import photo5 from '../assets/PersonalityPics/IMG_4756.jpg'
 
 const photos = [photo0, photo1, photo3, photo4, photo5,]
+
+// Width / height of each photo above, so the gallery can size them uncropped.
+const photoRatios = [1, 1242 / 2208, 900 / 1200, 1242 / 2208, 1200 / 900]
 
 const columns = [
   {
@@ -126,33 +126,58 @@ const summary = {
 
 const byId = (id) => columns.find((c) => c.id === id)
 
-export default function Home() {
-  const heroRef = useRef(null)
-  const [headerShown, setHeaderShown] = useState(false)
+// Contact as one band of three cells: the address, LinkedIn, the resume.
+function ContactBand({ column, n }) {
+  const email = column.items.find((i) => i.id === 'email')
+  const linkedin = column.items.find((i) => i.id === 'linkedin')
+  const resume = column.items.find((i) => i.id === 'resume')
+  const meta = (item) => (
+    <div className="entry-meta">
+      <span className="num">{n}.{column.items.indexOf(item) + 1}</span>
+      <span className="entry-label">{item.title}</span>
+    </div>
+  )
+  return (
+    <div className="contact-band">
+      <div className="contact-cell contact-cell-email" id={email.id} data-reveal>
+        {meta(email)}
+        <a className="contact-email" href={`mailto:${email.body}`}>{email.body}</a>
+      </div>
+      <div className="contact-cell" id={linkedin.id} data-reveal style={{ '--d': 1 }}>
+        {meta(linkedin)}
+        <a className="text-link" href={linkedin.link.href} target="_blank" rel="noopener noreferrer">
+          <LinkedInIcon />
+          {linkedin.link.label}
+        </a>
+      </div>
+      <div className="contact-cell contact-cell-resume" id={resume.id} data-reveal style={{ '--d': 2 }}>
+        {meta(resume)}
+        <a className="button" href={resume.link.href} target="_blank" rel="noopener noreferrer">{resume.link.label}</a>
+        <figure className="resume-page">
+          <iframe src={resume.pdf + '#toolbar=0&navpanes=0&scrollbar=0&view=FitH'} title={resume.title} loading="lazy" tabIndex={-1} />
+        </figure>
+      </div>
+    </div>
+  )
+}
 
-  // Scroll progress through the first screen drives the badge and the header.
+export default function Home() {
+  const [active, setActive] = useState(null)
+
+  // Scroll spy: the section in the middle of the screen is marked in the nav.
   useEffect(() => {
-    let frame = 0
-    function update() {
-      frame = 0
-      const p = Math.min(Math.max(window.scrollY / window.innerHeight, 0), 1)
-      heroRef.current?.style.setProperty('--p', p.toFixed(3))
-      setHeaderShown(p > 0.55)
-    }
-    function onScroll() {
-      if (!frame) frame = requestAnimationFrame(update)
-    }
-    update()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      cancelAnimationFrame(frame)
-    }
+    const sections = columns.map((c) => document.getElementById(c.id)).filter(Boolean)
+    if (!('IntersectionObserver' in window)) return
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
+      { rootMargin: '-45% 0px -50% 0px' },
+    )
+    sections.forEach((s) => io.observe(s))
+    return () => io.disconnect()
   }, [])
 
-  // Entrances: every [data-reveal] rises in once as it enters. Content is
-  // visible without this script; the hidden start state only exists under
-  // html.motion, which is set here.
+  // Entrances: each [data-reveal] rises in once. Content is visible without
+  // this script; the hidden start state only exists under html.motion.
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduce || !('IntersectionObserver' in window)) return
@@ -166,37 +191,29 @@ export default function Home() {
           }
         })
       },
-      { rootMargin: '0px 0px -8% 0px' },
+      { rootMargin: '0px 0px -6% 0px' },
     )
     document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el))
     return () => io.disconnect()
   }, [])
 
-  const roles = byId('roles')
-  const education = byId('education')
-  const projects = byId('projects')
   const contact = byId('contact')
 
   return (
     <>
       <a className="skip" href="#main">Skip to content</a>
-      <Header shown={headerShown} columns={columns} resume={contact.items.find((i) => i.id === 'resume')} />
+      <Header columns={columns} resume={contact.items.find((i) => i.id === 'resume')} active={active} />
       <main id="main">
-        <Hero
-          ref={heroRef}
-          room={roomImg}
-          headshot={headshot}
-          line={summary.line}
-          index={[roles, education, projects]}
-          contact={contact}
-        />
-        <Intro heading={summary.lead} photos={photos} />
-        <Roles column={roles} />
-        <Education column={education} />
-        <Projects column={projects} />
-        <Contact column={contact} />
+        <Hero headshot={headshot} role={summary.lead} line={summary.line} columns={columns} contact={contact} />
+        <Section column={byId('roles')} index={1} />
+        <Section column={byId('education')} index={2} />
+        <Section column={byId('projects')} index={3} />
+        <Gallery photos={photos.map((src, i) => ({ src, ratio: photoRatios[i] }))} />
+        <Section column={contact} index={4}>
+          {(n) => <ContactBand column={contact} n={n} />}
+        </Section>
       </main>
-      <Footer photo={photo1} columns={columns} contact={contact} />
+      <Footer columns={columns} contact={contact} />
     </>
   )
 }

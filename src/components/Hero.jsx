@@ -1,91 +1,47 @@
-import { useState } from 'react'
+import LinkedInIcon from './LinkedInIcon'
 
-const SLICES = 12
-
-// The first screen: the reading room at Pennington, dimmed, scanned in slice
-// by slice, with Malek's badge over it. The badge carries the index of the
-// site: point at an entry and its picture lights up in the badge photo slot.
-export default function Hero({ ref, room, headshot, line, index, contact }) {
-  const [preview, setPreview] = useState(null)
+// Name, role and the one-line summary first; the index and the headshot
+// sit on the same grid beside them.
+export default function Hero({ headshot, role, line, columns, contact }) {
   const email = contact.items.find((i) => i.id === 'email')
   const linkedin = contact.items.find((i) => i.id === 'linkedin')
   const resume = contact.items.find((i) => i.id === 'resume')
 
-  const show = (item) => setPreview(item.images?.length ? item : null)
-  const clear = () => setPreview(null)
-
   return (
-    <section className="hero" id="top" ref={ref} aria-labelledby="hero-name">
-      <div className="hero-room" aria-hidden="true">
-        <img className="hero-room-img" src={room} alt="" width="2000" height="1500" fetchPriority="high" />
-        <div className="scan">
-          {Array.from({ length: SLICES }, (_, i) => (
-            <span key={i} style={{ '--i': i }} />
-          ))}
-        </div>
-      </div>
+    <section className="hero" id="top" aria-labelledby="hero-name">
+      <h1 className="hero-name" id="hero-name">
+        <span>Malek Badawi</span>
+      </h1>
 
-      <div className="badge">
-        <h1 className="badge-name" id="hero-name">
-          <span>Malek</span> <span>Badawi</span>
-        </h1>
+      <p className="hero-role">{role}</p>
 
-        <div className="badge-body">
-          <figure className="badge-photo">
-            <img
-              className={`badge-headshot ${preview ? 'is-off' : ''}`}
-              src={headshot}
-              alt="Malek Badawi"
-              width="1023"
-              height="1279"
-            />
-            {preview && (
-              <img
-                key={preview.id}
-                className="badge-preview"
-                src={preview.images[0]}
-                alt={preview.label}
-              />
-            )}
-          </figure>
-
-          <div className="badge-info">
-            <nav className="badge-index" aria-label="Index">
-              {index.map((col) => (
-                <div className="badge-col" key={col.id}>
-                  <a className="badge-col-label" href={`#${col.id}`}>{col.label}</a>
-                  <ul>
-                    {col.items.map((item) => (
-                      <li key={item.id}>
-                        <a
-                          href={`#${item.id}`}
-                          onMouseEnter={() => show(item)}
-                          onMouseLeave={clear}
-                          onFocus={() => show(item)}
-                          onBlur={clear}
-                        >
-                          {item.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </nav>
-            <p className="badge-line">{line}</p>
-          </div>
-        </div>
-
-        <div className="badge-foot">
-          <a className="text-link" href={`mailto:${email.body}`}>{email.body}</a>
+      <div className="hero-copy">
+        <p className="hero-line">{line}</p>
+        <div className="hero-actions">
           <a className="button" href={resume.link.href} target="_blank" rel="noopener noreferrer">
             {resume.link.label}
           </a>
+          <a className="text-link" href={`mailto:${email.body}`}>{email.body}</a>
           <a className="text-link" href={linkedin.link.href} target="_blank" rel="noopener noreferrer">
+            <LinkedInIcon />
             {linkedin.link.label}
           </a>
         </div>
       </div>
+
+      <nav className="hero-index" aria-label="Index">
+        {columns.map((col, i) => (
+          <a key={col.id} href={`#${col.id}`}>
+            <span className="num">{String(i + 1).padStart(2, '0')}</span>
+            {col.label}
+          </a>
+        ))}
+      </nav>
+
+      <figure className="hero-photo">
+        <img src={headshot} alt="Malek Badawi" width="1023" height="1279" />
+        <span className="scan" aria-hidden="true" />
+      </figure>
     </section>
   )
 }
