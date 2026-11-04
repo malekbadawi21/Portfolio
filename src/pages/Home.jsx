@@ -90,7 +90,7 @@ const columns = [
     items: [
       { id: 'email', label: 'Email', title: 'Email', body: 'malekbadawi21@gmail.com', logo: true },
       { id: 'linkedin', label: 'LinkedIn', title: 'LinkedIn', body: '', link: { href: 'https://www.linkedin.com/in/malekbadawi21/', label: 'View LinkedIn Profile' }, logo: true },
-      { id: 'resume', label: 'Resume', title: 'Resume', body: '', link: { href: '/MalekBadawiResume2026.pdf', label: 'Download Resume' }, pdf: '/MalekBadawiResume2026.pdf' },
+      { id: 'resume', label: 'Resume', title: 'Resume', body: '', link: { href: '/MalekBadawiResumePortfolio.pdf', label: 'Download Resume' }, pdf: '/MalekBadawiResumePortfolio.pdf' },
     ],
   },
 ]
