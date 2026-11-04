@@ -17,10 +17,14 @@
 }
 
 .landing-photo {
-  height: 80vh;
-  width: auto;
+  width: min(48vh, 440px);
+  aspect-ratio: 1;
   object-fit: cover;
+  object-position: 50% 30%;
+  border-radius: 50%;
+  border: 3px solid #111111;
   display: block;
+  flex-shrink: 0;
 }
 
 .scroll-arrow {
@@ -51,9 +55,6 @@
   }
 
   .landing-photo {
-    height: 50vh;
-    width: 100%;
-    object-fit: cover;
-    object-position: center top;
+    width: min(64vw, 260px);
   }
 }
