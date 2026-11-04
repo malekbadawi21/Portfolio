@@ -118,6 +118,7 @@
   }
 
   .hero-name {
+    align-self: flex-start;
     font-size: clamp(64px, 23vw, 110px);
   }
 

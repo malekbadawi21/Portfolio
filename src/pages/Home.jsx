@@ -445,8 +445,8 @@ function Bar({ activeItem, openCol, setOpenCol, onPick, onHome }) {
               data-current={Boolean(current)}
               onClick={() => toggle(col.id)}
             >
-              <span className="trigger-index mono">{pad(ci + 1)}</span>
-              <span className="trigger-label mono">{col.label}</span>
+              <span className="trigger-index mono">{pad(ci + 1)}</span>{' '}
+              <span className="trigger-label mono">{col.label}</span>{' '}
               <span className="trigger-current mono">{current?.label}</span>
               <Chevron />
             </button>
@@ -457,11 +457,15 @@ function Bar({ activeItem, openCol, setOpenCol, onPick, onHome }) {
                     <button
                       className="menu-item"
                       aria-pressed={activeItem?.id === item.id}
-                      onClick={() => onPick(item, 'menu')}
+                      onClick={() => {
+                        onPick(item, 'menu')
+                        // The menu hides on pick; keep keyboard focus on its column.
+                        triggerRefs.current[col.id]?.focus({ preventScroll: true })
+                      }}
                       onPointerEnter={() => preload(item)}
                       onFocus={() => preload(item)}
                     >
-                      <span className="menu-label">{item.label}</span>
+                      <span className="menu-label">{item.label}</span>{' '}
                       <span className="menu-index mono">{pad(ci + 1)}.{pad(ii + 1)}</span>
                     </button>
                   </li>
@@ -496,7 +500,7 @@ function Intro({ onPick }) {
                     onPointerEnter={() => preload(item)}
                     onFocus={() => preload(item)}
                   >
-                    <span className="dir-label">{item.label}</span>
+                    <span className="dir-label">{item.label}</span>{' '}
                     {item.title !== item.label && <span className="dir-title">{item.title}</span>}
                     <Arrow />
                   </button>
@@ -526,8 +530,8 @@ function Channels({ activeId }) {
               rel={ch.external ? 'noopener noreferrer' : undefined}
               download={ch.download ? '' : undefined}
             >
-              <span className="ch-index mono">{pad(i + 1)}</span>
-              <span className="ch-label mono">{item.label}</span>
+              <span className="ch-index mono">{pad(i + 1)}</span>{' '}
+              <span className="ch-label mono">{item.label}</span>{' '}
               <span className="ch-value">{ch.text}</span>
               {ch.download ? <DownloadIcon /> : <Arrow />}
             </a>
@@ -551,11 +555,11 @@ function Pager({ index, onPick }) {
   return (
     <div className="pager">
       <button className="pager-btn pager-prev" onClick={() => onPick(prev.item, 'pager')}>
-        <span className="pager-meta mono"><Arrow dir="left" /> {pad(prev.ci + 1)} {prev.col.label}</span>
+        <span className="pager-meta mono"><Arrow dir="left" /> {pad(prev.ci + 1)} {prev.col.label}</span>{' '}
         <span className="pager-label">{prev.item.label}</span>
       </button>
       <button className="pager-btn pager-next" onClick={() => onPick(next.item, 'pager')}>
-        <span className="pager-meta mono">{pad(next.ci + 1)} {next.col.label} <Arrow /></span>
+        <span className="pager-meta mono">{pad(next.ci + 1)} {next.col.label} <Arrow /></span>{' '}
         <span className="pager-label">{next.item.label}</span>
       </button>
     </div>
