@@ -498,6 +498,184 @@ html.scan-on .scan:not(.is-scanned) > img { clip-path: inset(0 0 100% 0); }
 }
 
 /* ------------------------------------------------------------------
+   Jump menu (⌘K / Ctrl K): a plain list in a dialog, no open or close
+   animation, since it is a keyboard tool you reach for often.
+   ------------------------------------------------------------------ */
+
+.jump-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+.jump-kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 7px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+.jump-icon { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .jump-trigger:hover { color: var(--ink); }
+  .jump-trigger:hover .jump-kbd { border-color: var(--ink); }
+}
+/* Touch, or no room: a compact search icon instead of the key hint. */
+@media (hover: none) and (pointer: coarse), (max-width: 760px) {
+  .jump-trigger { width: 36px; color: var(--ink); }
+  .jump-kbd { display: none; }
+  .jump-icon { display: block; }
+}
+
+.jump {
+  width: min(640px, calc(100% - 2 * var(--margin)));
+  max-width: none;
+  max-height: none;
+  margin: min(14vh, 120px) auto auto;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow: 0 24px 48px -28px rgb(17 18 20 / 0.45);
+}
+.jump::backdrop { background: rgb(17 18 20 / 0.16); }
+
+.jump-input {
+  display: block;
+  width: 100%;
+  height: 54px;
+  padding: 0 18px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  caret-color: var(--accent);
+}
+.jump-input::placeholder { color: var(--muted); opacity: 1; }
+.jump-input:focus { outline: none; }
+/* The caret and an inked rule under the field show where typing goes. */
+.jump-input:focus-visible { border-bottom-color: var(--ink); }
+
+.jump-list {
+  list-style: none;
+  max-height: min(56vh, 460px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px 0;
+  scroll-padding-block: 6px;
+}
+.jump-list:empty { display: none; }
+
+/* Each row: the dash slot, the section number, the label, the title. */
+.jump-opt {
+  --dash: 14px;
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.5ch 18ch minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 12px;
+  padding: 9px 18px 9px calc(18px + var(--dash) + 8px);
+  cursor: pointer;
+  font-size: 0.9375rem;
+}
+.jump-opt::before {
+  content: '';
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  width: var(--dash);
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.jump-opt .num { font-size: 0.75rem; }
+.jump-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.jump-title {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.jump-opt[aria-selected='true']::before { transform: scaleX(1); }
+.jump-opt[aria-selected='true'] .num,
+.jump-opt[aria-selected='true'] .jump-label { color: var(--accent); font-weight: 600; }
+.jump-opt[aria-selected='true'] .jump-title { color: var(--ink); font-weight: 600; }
+
+.jump-empty {
+  padding: 18px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+.jump-empty:empty { display: none; }
+
+@media (max-width: 760px) {
+  .jump {
+    width: calc(100% - 2 * var(--margin));
+    margin-top: 12px;
+  }
+  .jump-list { max-height: 52dvh; }
+  .jump-opt {
+    --dash: 12px;
+    grid-template-columns: 4.5ch minmax(0, 1fr);
+    row-gap: 2px;
+    padding: 10px 16px 10px calc(16px + var(--dash) + 6px);
+  }
+  .jump-opt::before { left: 16px; top: 19px; margin-top: 0; }
+  .jump-title { grid-column: 2; font-size: 0.875rem; }
+}
+
+/* Where a jump lands: the entry's number takes the active marker briefly. */
+.entry-meta .num,
+.contact-cell .num {
+  position: relative;
+  transition: color 200ms ease, font-weight 200ms ease;
+}
+.entry-meta .num::before {
+  content: '';
+  position: absolute;
+  right: calc(100% + 6px);
+  top: 50%;
+  width: 14px;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 200ms var(--ease-out);
+}
+.num.is-target { color: var(--accent); font-weight: 600; }
+.entry-meta .num.is-target::before { transform: scaleX(1); }
+@media (max-width: 760px) {
+  .entry-meta .num::before { display: none; }
+}
+article[tabindex='-1']:focus { outline: none; }
+
+/* ------------------------------------------------------------------
    Entrances (only once the script has set html.motion)
    ------------------------------------------------------------------ */
 
@@ -619,4 +797,6 @@ html.motion [data-reveal].is-in {
   .gallery-ph img { transition: none; }
   .site-nav a::before { transition: opacity 150ms ease; transform: none; opacity: 0; }
   .site-nav a[aria-current]::before { opacity: 1; }
+  .entry-meta .num::before { transition: opacity 150ms ease; transform: none; opacity: 0; }
+  .entry-meta .num.is-target::before { opacity: 1; }
 }

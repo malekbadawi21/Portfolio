@@ -1,3 +1,5 @@
+import JumpMenu from './JumpMenu'
+
 export default function Header({ columns, resume, active }) {
   return (
     <header className="site-header">
@@ -12,6 +14,7 @@ export default function Header({ columns, resume, active }) {
           </a>
         ))}
       </nav>
+      <JumpMenu columns={columns} />
       <a className="button button-small header-action" href={resume.link.href} target="_blank" rel="noopener noreferrer">
         {resume.link.label}
       </a>
