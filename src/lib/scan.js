@@ -6,13 +6,16 @@
 // sets, so the images stay visible if the script never runs.
 
 const SLICES = 24
-const DURATION = 600
-const POWER = 1.8 // ease-out 1 - (1 - t)^POWER, gentle enough that the last slices don't stall
+// Long enough, at an even pace, for the SLICE counter to visibly count up:
+// one slice about every 62ms.
+const DURATION = 1500
 const STAGGER = 90 // ms between images that enter together
+const HOLD = 700 // ms the finished SLICE 24/24 readout stays before it fades
 
-const progress = (t) => 1 - Math.pow(1 - t, POWER)
-// The moment slice k is complete: the inverse of progress at k / SLICES.
-const sliceAt = (k) => 1 - Math.pow(1 - k / SLICES, 1 / POWER)
+// Slices land at an even pace, so progress is linear in time.
+const progress = (t) => t
+// The moment slice k is complete.
+const sliceAt = (k) => k / SLICES
 
 const clipFrames = []
 const lineFrames = []
@@ -41,7 +44,7 @@ function finish(el) {
   el.classList.add('is-scanned')
   el.getAnimations({ subtree: true }).forEach((a) => a.cancel())
   // The readout lingers a moment, then fades (see .scan-readout in Home.css).
-  setTimeout(() => el.classList.remove('is-scanning'), 300)
+  setTimeout(() => el.classList.remove('is-scanning'), HOLD)
 }
 
 function play(el, reduce) {
