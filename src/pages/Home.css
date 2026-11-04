@@ -305,6 +305,7 @@
   padding: clamp(28px, 3vw, 40px) 0;
 }
 .contact-cell-email { grid-column: 1 / 8; }
+.contact-cell-linkedin { grid-column: 8 / 10; }
 .contact-cell-resume { grid-column: 10 / 13; }
 .contact-cell .entry-meta { padding-top: 0; }
 
@@ -313,7 +314,7 @@
   font-weight: 500;
   letter-spacing: -0.035em;
   line-height: 1.1;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   transition: color var(--dur-fast) ease;
 }
 .contact-email:hover { color: var(--accent); }
@@ -429,8 +430,8 @@ html.motion [data-reveal].is-in {
   .media img { max-height: 380px; }
   .media-set { max-width: 420px; }
   .contact-cell-email { grid-column: 1 / -1; }
-  .contact-cell { grid-column: 1 / 7; padding-top: 0; }
-  .contact-cell-resume { grid-column: 7 / 13; }
+  .contact-cell-linkedin { grid-column: 1 / 7; padding-top: 0; }
+  .contact-cell-resume { grid-column: 7 / 13; padding-top: 0; }
 }
 
 /* ------------------------------------------------------------------
@@ -477,11 +478,12 @@ html.motion [data-reveal].is-in {
     justify-self: start;
     margin: 0 0 20px;
   }
-  .media img { max-height: 440px; }
+  .media img { max-height: 340px; }
   .media-set { max-width: none; }
   .contact-band { grid-template-columns: minmax(0, 1fr); }
   .contact-cell,
   .contact-cell-email,
+  .contact-cell-linkedin,
   .contact-cell-resume { grid-column: 1; padding: 24px 0; }
   .contact-cell + .contact-cell { border-top: 1px solid var(--line); }
   .resume-page { display: none; }

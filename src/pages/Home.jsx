@@ -143,7 +143,7 @@ function ContactBand({ column, n }) {
         {meta(email)}
         <a className="contact-email" href={`mailto:${email.body}`}>{email.body}</a>
       </div>
-      <div className="contact-cell" id={linkedin.id} data-reveal style={{ '--d': 1 }}>
+      <div className="contact-cell contact-cell-linkedin" id={linkedin.id} data-reveal style={{ '--d': 1 }}>
         {meta(linkedin)}
         <a className="text-link" href={linkedin.link.href} target="_blank" rel="noopener noreferrer">
           <LinkedInIcon />
