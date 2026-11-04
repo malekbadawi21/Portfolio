@@ -8,7 +8,7 @@ export default function Header({ columns, resume, active }) {
       <nav className="site-nav" aria-label="Sections">
         {columns.map((col) => (
           <a key={col.id} href={`#${col.id}`} aria-current={active === col.id ? 'true' : undefined}>
-            {col.label}
+            <span className="nav-label" data-label={col.label}>{col.label}</span>
           </a>
         ))}
       </nav>

@@ -92,17 +92,60 @@
 .wordmark-short { display: none; }
 
 .site-nav {
+  --dash: 14px;
+  --dash-gap: 6px;
   display: flex;
-  gap: clamp(16px, 2.2vw, 28px);
+  gap: clamp(4px, 0.8vw, 10px);
   margin-left: auto;
   font-size: 0.9375rem;
 }
 
+/* Active section: a short dash grows in before the label and the label
+   turns heavier. Every link keeps a slot for the dash, and each label is as
+   wide as its bold version, so nothing beside it moves when it changes. */
+.site-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-left: calc(var(--dash) + var(--dash-gap));
+}
+.site-nav a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: var(--dash);
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 200ms var(--ease-out);
+}
+.site-nav a[aria-current]::before { transform: scaleX(1); }
+
+.nav-label {
+  display: inline-flex;
+  flex-direction: column;
+}
+.nav-label::after {
+  content: attr(data-label);
+  content: attr(data-label) / '';
+  font-weight: 600;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+.site-nav a[aria-current] { font-weight: 600; }
+
 .site-nav a,
 .wordmark { transition: color var(--dur-fast) ease; }
-.site-nav a:hover,
-.wordmark:hover,
 .site-nav a[aria-current] { color: var(--accent); }
+@media (hover: hover) and (pointer: fine) {
+  .site-nav a:hover,
+  .wordmark:hover { color: var(--accent); }
+}
 
 /* ------------------------------------------------------------------
    Hero
@@ -454,7 +497,8 @@ html.motion [data-reveal].is-in {
   .wordmark-full { display: none; }
   .wordmark-short { display: inline; }
   .header-action { display: none; }
-  .site-nav { font-size: 0.875rem; gap: 16px; }
+  .site-header { gap: 8px; }
+  .site-nav { --dash: 12px; --dash-gap: 4px; font-size: 0.8125rem; gap: 6px; }
 
   .hero {
     grid-template-columns: minmax(0, 1fr) 112px;
@@ -503,6 +547,10 @@ html.motion [data-reveal].is-in {
   .gallery-break { flex-basis: 100%; height: 0; }
 }
 
+@media (max-width: 374px) {
+  .site-nav { --dash-gap: 3px; gap: 2px; }
+}
+
 .gallery-break { display: none; }
 @media (max-width: 760px) { .gallery-break { display: block; } }
 
@@ -518,4 +566,6 @@ html.motion [data-reveal].is-in {
   .button,
   .hero-index a,
   .gallery-ph img { transition: none; }
+  .site-nav a::before { transition: opacity 150ms ease; transform: none; opacity: 0; }
+  .site-nav a[aria-current]::before { opacity: 1; }
 }
