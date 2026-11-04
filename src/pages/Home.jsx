@@ -1,9 +1,20 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import './Home.css'
+
+import Header from '../components/Header'
+import Hero from '../components/Hero'
+import Section from '../components/Section'
+import Gallery from '../components/Gallery'
+import Footer from '../components/Footer'
+import LinkedInIcon from '../components/LinkedInIcon'
+import GitHubIcon from '../components/GitHubIcon'
+import DownloadIcon from '../components/DownloadIcon'
+import { observeScans } from '../lib/scan'
+
+import headshot from '../assets/MalekBadawiPortfolioPic.png'
 
 import penningtonImg from '../assets/PenningtonPics/IMG_3174.jpg'
 import adaImg from '../assets/ADAPics/ADAlogo.png'
-import uclImg1 from '../assets/UCLPics/IMG_3208.JPG'
 import uclImg2 from '../assets/UCLPics/IMG_3218.jpeg'
 import uclImg3 from '../assets/UCLPics/UCLSLIDE1.png'
 import uclImg4 from '../assets/UCLPics/UCLSLIDE2.png'
@@ -16,7 +27,15 @@ import photo3 from '../assets/PersonalityPics/IMG_1628.jpg'
 import photo4 from '../assets/PersonalityPics/IMG_4404.JPG'
 import photo5 from '../assets/PersonalityPics/IMG_4756.jpg'
 
-const photos = [photo0, photo1, photo3, photo4, photo5,]
+// Each photo with its natural width and height, so the gallery can size them
+// uncropped and reserve their space before they load.
+const photos = [
+  { src: photo0, w: 1200, h: 1200 },
+  { src: photo1, w: 675, h: 1200 },
+  { src: photo3, w: 900, h: 1200 },
+  { src: photo4, w: 675, h: 1200 },
+  { src: photo5, w: 1200, h: 900 },
+]
 
 const columns = [
   {
@@ -28,14 +47,14 @@ const columns = [
         label: 'Pennington',
         title: 'Undergraduate Researcher, Pennington Biomedical',
         body: 'Since March 2026, I\'ve been working on a study of how brain age can be derived from gray and white matter volumes, and what it means when your brain ages faster than you do. I showed the lab\'s BRISQUE pipeline missed MRI-specific artifacts like motion, helping move the lab to MRIQC. Since then, I\'ve organized FreeSurfer outputs for about 460 subjects and built batch workflows across seven studies.',
-        images: [penningtonImg],
+        images: [{ src: penningtonImg, w: 1200, h: 900 }],
       },
       {
         id: 'ada',
         label: 'ADA',
         title: 'Software & Data Engineering Intern, Automotive Data Analytics',
         body: 'From September 2025 to June 2026, I interned remotely at Automotive Data Analytics. I built Microsoft Fabric ETL pipelines that unified 10,000+ customer records from multiple dealership systems into one lakehouse, with automatic refreshes feeding Power BI reports. I also built a two-factor authentication service on Azure Logic Apps, Azure Table Storage, and Twilio, sending one-time codes by email and SMS and handling code expiration and session validation. Real tools, real data, real users.',
-        images: [adaImg],
+        images: [{ src: adaImg, w: 640, h: 640 }],
       },
       {
         id: 'senate',
@@ -54,14 +73,18 @@ const columns = [
         label: 'LSU',
         title: 'Louisiana State University',
         body: 'Studying Software Engineering at Louisiana State University with minors in Mathematics and Honors Research, as a Stamps Scholar. I\'m building toward a focus in AI and machine learning.\n\nI\'m currently taking LLM Application Development! A project-based course where cross-functional teams build LLM-enabled applications for real Louisiana businesses. The curriculum covers probabilistic language models, tokenization, agentic system design, human-AI interaction, and local model fine-tuning. It\'s exactly the kind of applied, state-of-the-art work I want to be doing.',
-        images: [lsuImg],
+        images: [{ src: lsuImg, w: 1200, h: 783 }],
       },
       {
         id: 'ucl',
         label: 'UCL',
         title: 'University College London',
         body: 'In the summer of 2025, I spent three weeks at University College London studying Artificial Intelligence Concepts & Applications, finishing with distinction. The course was a structured deep-dive across the full AI stack: supervised and unsupervised learning, neural networks and deep learning, NLP, computer vision, reinforcement learning, and AI in society. It was my first formal exposure to AI as a discipline, and it confirmed the direction I want to go.',
-        images: [uclImg2, uclImg3, uclImg4],
+        images: [
+          { src: uclImg2, w: 900, h: 1200 },
+          { src: uclImg3, w: 1200, h: 677 },
+          { src: uclImg4, w: 1200, h: 677 },
+        ],
         collageStyle: 'ucl',
       },
     ],
@@ -92,175 +115,132 @@ const columns = [
         label: 'Golf Swing',
         title: 'Golf Swing Analyzer',
         body: 'A computer vision tool that analyzes golf swings in real time. Built with Python, OpenCV, and MediaPipe, it tracks 33 body landmarks per frame, applies a hybrid pose detection model to handle partial occlusion, and automatically identifies the swing plane from the club shaft in the opening frames drawing it as a dotted reference line throughout the swing.',
-        images: [golfGif],
+        images: [{ src: golfGif, w: 420, h: 750 }],
       },
     ],
   },
   {
     id: 'contact',
     label: 'Contact',
+    intro: 'Have an idea, a project, or just want to talk? I\'d love to hear from you.',
     items: [
       { id: 'email', label: 'Email', title: 'Email', body: 'malekbadawi21@gmail.com', logo: true },
       { id: 'linkedin', label: 'LinkedIn', title: 'LinkedIn', body: '', link: { href: 'https://www.linkedin.com/in/malekbadawi21/', label: 'View LinkedIn Profile' }, logo: true },
-      { id: 'resume', label: 'Resume', title: 'Resume', body: '', link: { href: '/MalekBadawiResumePortfolio.pdf', label: 'Download Resume' }, pdf: '/MalekBadawiResumePortfolio.pdf' },
+      { id: 'github', label: 'GitHub', title: 'GitHub', body: '', link: { href: 'https://github.com/malekbadawi21', label: 'View GitHub Profile' }, logo: true },
+      { id: 'resume', label: 'Resume', title: 'Resume', body: '', link: { href: '/MalekBadawiResumePortfolio.pdf', label: 'Download Resume' } },
     ],
   },
 ]
 
+// The two halves of the original summary line, kept word for word.
+const summary = {
+  lead: 'Student, researcher, builder.',
+  line: 'Studying Software Engineering at LSU, researching at Pennington Biomedical, and building toward a future in AI.',
+}
+
+const byId = (id) => columns.find((c) => c.id === id)
+
+// Contact as one band of four cells: the address, LinkedIn, GitHub, the resume.
+function ContactBand({ column, n }) {
+  const email = column.items.find((i) => i.id === 'email')
+  const linkedin = column.items.find((i) => i.id === 'linkedin')
+  const github = column.items.find((i) => i.id === 'github')
+  const resume = column.items.find((i) => i.id === 'resume')
+  const meta = (item) => (
+    <div className="entry-meta">
+      <span className="num">{n}.{column.items.indexOf(item) + 1}</span>
+      <span className="entry-label">{item.title}</span>
+    </div>
+  )
+  return (
+    <div className="contact-band">
+      <p className="contact-intro" data-reveal>{column.intro}</p>
+      <div className="contact-cell contact-cell-email" id={email.id} data-reveal>
+        {meta(email)}
+        <a className="contact-email" href={`mailto:${email.body}`}>{email.body}</a>
+      </div>
+      <div className="contact-cell contact-cell-linkedin" id={linkedin.id} data-reveal style={{ '--d': 1 }}>
+        {meta(linkedin)}
+        <a className="text-link" href={linkedin.link.href} target="_blank" rel="noopener noreferrer">
+          <LinkedInIcon />
+          {linkedin.link.label}
+        </a>
+      </div>
+      <div className="contact-cell contact-cell-github" id={github.id} data-reveal style={{ '--d': 2 }}>
+        {meta(github)}
+        <a className="text-link" href={github.link.href} target="_blank" rel="noopener noreferrer">
+          <GitHubIcon />
+          {github.link.label}
+        </a>
+      </div>
+      <div className="contact-cell contact-cell-resume" id={resume.id} data-reveal style={{ '--d': 3 }}>
+        {meta(resume)}
+        <a className="button" href={resume.link.href} target="_blank" rel="noopener noreferrer">
+          {resume.link.label}
+          <DownloadIcon />
+        </a>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
-  const [activeColumn, setActiveColumn] = useState(null)
-  const [activeItem, setActiveItem] = useState(null)
-  const [isVisible, setIsVisible] = useState(true)
-  const [currentPhoto, setCurrentPhoto] = useState(0)
-  const currentPhotoRef = useRef(0)
-  const intervalRef = useRef(null)
+  const [active, setActive] = useState(null)
 
-  function startPhotoInterval() {
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    intervalRef.current = setInterval(() => {
-      const next = (currentPhotoRef.current + 1) % photos.length
-      currentPhotoRef.current = next
-      setCurrentPhoto(next)
-    }, 3500)
-  }
-
+  // Scroll spy: the section in the middle of the screen is marked in the nav.
   useEffect(() => {
-    startPhotoInterval()
-    return () => clearInterval(intervalRef.current)
+    const sections = columns.map((c) => document.getElementById(c.id)).filter(Boolean)
+    if (!('IntersectionObserver' in window)) return
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
+      { rootMargin: '-45% 0px -50% 0px' },
+    )
+    sections.forEach((s) => io.observe(s))
+    return () => io.disconnect()
   }, [])
 
-  function handleColumnClick(colId) {
-    if (activeColumn === colId) {
-      setActiveColumn(null)
-    } else {
-      setActiveColumn(colId)
-    }
-  }
+  // Entrances: each [data-reveal] rises in once. Content is visible without
+  // this script; the hidden start state only exists under html.motion.
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce || !('IntersectionObserver' in window)) return
+    document.documentElement.classList.add('motion')
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in')
+            io.unobserve(e.target)
+          }
+        })
+      },
+      { rootMargin: '0px 0px -6% 0px' },
+    )
+    document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [])
 
-  function handleItemClick(item) {
-    const next = item === activeItem ? null : item
-    setIsVisible(false)
-    startPhotoInterval()
-    setTimeout(() => {
-      setActiveItem(next)
-      setTimeout(() => setIsVisible(true), 150)
-    }, 300)
-  }
+  // Image scans: set up before the first paint so no image flashes in and then
+  // hides again. The hidden start state only exists under html.scan-on.
+  useLayoutEffect(() => observeScans(), [])
+
+  const contact = byId('contact')
 
   return (
-    <div className="page">
-      <hr className="rule" />
-
-      <main className="main">
-        <div className="col-grid">
-          {columns.map((col) => (
-            <div key={col.id} className="col">
-              <button
-                className={`col-header ${activeColumn === col.id ? 'open' : ''}`}
-                onClick={() => handleColumnClick(col.id)}
-              >
-                {col.label.toUpperCase()}
-                <span className="chevron" aria-hidden="true">
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                  </svg>
-                </span>
-              </button>
-
-              {activeColumn === col.id && (
-                <ul className="col-items">
-                  {col.items.map((item) => (
-                    <li key={item.id}>
-                      <button
-                        className={`item ${activeItem?.id === item.id ? 'selected' : ''}`}
-                        onClick={() => handleItemClick(item)}
-                      >
-                        {item.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="content-area" style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}>
-          <div className="content-left">
-            {activeItem ? (
-              <div className="detail-panel">
-                <p className="detail-label">
-                  {columns.find((c) => c.items.some((i) => i.id === activeItem.id))?.label} — {activeItem.label}
-                </p>
-                <h2 className="detail-title">{activeItem.title}</h2>
-                {activeItem.body && activeItem.body.split('\n\n').map((para, i) => (
-                  <p key={i} className="detail-body">{para}</p>
-                ))}
-                {activeItem.link && (
-                  <a
-                    href={activeItem.link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="detail-link"
-                  >
-                    {activeItem.id === 'linkedin' && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle', position: 'relative', top: '-1px' }}>
-                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                      </svg>
-                    )}
-                    {activeItem.link.label}
-                  </a>
-                )}
-              </div>
-            ) : (
-              <p className="summary-text">
-                <strong>Student, researcher, builder.</strong> <br /> 
-                Studying Software Engineering at LSU, researching at Pennington Biomedical, and building toward a future in AI.
-              </p>
-            )}
-          </div>
-
-          <div className={activeItem?.pdf ? 'content-right-pdf' : activeItem?.logo ? 'content-right' : activeItem?.images?.length > 1 ? 'content-right-collage' : activeItem?.images?.length === 1 ? 'content-right-item' : 'content-right'}>
-            {activeItem?.pdf ? (
-              <iframe
-                src={activeItem.pdf + '#toolbar=0&navpanes=0&scrollbar=0'}
-                className="pdf-embed"
-                title="Resume"
-              />
-            ) : activeItem?.logo ? (
-              <img src="/favicon.svg" alt="MB" className="logo-display" loading="lazy" />
-            ) : activeItem?.images?.length > 1 ? (
-              <div className="photo-collage">
-                {activeItem.images.map((img, i) => (
-                  <img key={i} src={img} alt={activeItem.label} className={`${activeItem.collageStyle}-img-${i + 1}`} loading="lazy" />
-                ))}
-              </div>
-            ) : activeItem?.images?.length === 1 ? (
-              <img
-                src={activeItem.images[0]}
-                alt={activeItem.label}
-                className="item-image"
-                loading="lazy"
-              />
-            ) : (
-              photos.map((photo, i) => (
-                <img
-                  key={i}
-                  src={photo}
-                  alt="Malek Badawi"
-                  className="personality-photo"
-                  style={{ opacity: i === currentPhoto ? 1 : 0, transition: 'opacity 0.8s ease' }}
-                  loading="lazy"
-                />
-              ))
-            )}
-          </div>
-        </div>
+    <>
+      <a className="skip" href="#main">Skip to content</a>
+      <Header columns={columns} resume={contact.items.find((i) => i.id === 'resume')} active={active} />
+      <main id="main">
+        <Hero headshot={headshot} role={summary.lead} line={summary.line} columns={columns} contact={contact} />
+        <Section column={byId('roles')} index={1} />
+        <Section column={byId('education')} index={2} />
+        <Section column={byId('projects')} index={3} />
+        <Gallery photos={photos} />
+        <Section column={contact} index={4}>
+          {(n) => <ContactBand column={contact} n={n} />}
+        </Section>
       </main>
-
-      <footer className="footer">
-        © 2026 Malek Badawi
-      </footer>
-    </div>
+      <Footer columns={columns} contact={contact} />
+    </>
   )
 }

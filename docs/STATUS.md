@@ -1,50 +1,42 @@
 # Portfolio — Status
 
-_Last updated: 2026-11-03_
+_Last updated: 2026-11-04_
 
 ## Current state
-malekbadawi.com is live and deploys from `main` through Vercel. The site is React 19 + Vite 8 with plain CSS: a landing screen where the name shrinks into an "MB" mark on scroll, then a home view with four dropdown columns (Roles, Education, Projects, Contact) that open a detail panel below them.
+malekbadawi.com is live and deploys from `main` through Vercel. The site is React 19 + Vite 8 with plain CSS.
 
-The site content was updated on 2026-11-03 to match the current resume (branch `content-update`):
+On 2026-11-04 the site was redesigned as one scrolling page. It's based on the `redesign-taste` round-2 direction, polished in `redesign-finesse`:
+- A hero with the name, summary, resume, email, LinkedIn and GitHub links, a section index, and the headshot in a circle with a black border.
+- Four numbered sections: Roles, Education, Projects, Contact. Each entry is a row with its number and label in mono, then its title, text and images.
+- A band of personal photos before Contact.
+- Contact opens with "Have an idea, a project, or just want to talk? I'd love to hear from you.", followed by Email, LinkedIn, GitHub and Resume.
+- A header that stays on screen and marks the current section with a dash and bold label.
+- Images build in slice by slice the first time they scroll into view, with a `SLICE nn/24` readout. Under reduced motion they fade in instead.
+- A ⌘K / Ctrl K jump menu that lists every entry and contact link.
 
-| Column | Entries |
+| Section | Entries |
 |---|---|
 | Roles | Pennington, ADA, LSU Senate |
 | Education | LSU, UCL |
 | Projects | Community Coffee, PFT Navigator, MRI Motion Agent, Golf Swing |
-| Contact | Email, LinkedIn, Resume (`public/MalekBadawiResumePortfolio.pdf`) |
+| Contact | Email, LinkedIn, GitHub, Resume (`public/MalekBadawiResumePortfolio.pdf`) |
+
+Images are compressed to 1200px on the long edge, and the golf GIF to 420px wide. A full scroll loads about 3.6 MB of images, down from about 13.7 MB.
 
 ## In progress
-- UI redesign, new approach to be decided — Malek
-  - The first two directions were built, revised once each, and **not adopted**. Their branches stay on GitHub for reference:
-    - `redesign-taste`: full redesign (round 1: dark editorial; round 2: light "engineering" direction)
-    - `redesign-impeccable`: kept the current concept (round 1: refined light layout; round 2: "drafting-sheet" direction with IBM Plex)
-  - What worked and should carry forward:
-    - all work visible on one scrolling page
-    - the image load-in treatment
-    - a dash marker plus bold weight on the selected item
-  - What didn't work:
-    - display fonts and colors that read as editorial or lifestyle rather than technical
-    - a hero card over a busy photo
-    - floating landing letters
-    - scrolling past the navigation
-    - too much empty white space
-    - weak contact views
+- None
 
 ## Up next
-1. Choose a new approach for the redesign and build it from `main`.
-2. Whatever the approach, fix the current layout limits:
-   - The home view is fixed at one screen height and can't scroll, so long text and images get clipped.
-   - On phones, images below the text are cut off.
-   - At 1280×720, some entries (ADA, LSU) are already clipped.
-3. Add images for the entries that don't have their own yet: LSU Senate, Community Coffee, PFT Navigator, MRI Motion Agent.
-4. Cleanup:
-   - compress large images (golf GIF 5.3 MB, Pennington photo 2.5 MB, ADA logo 1.5 MB)
-   - remove the unused `uclImg1` import (lint warning)
-   - remove the unused All You Can Eat images and their CSS
+1. Add images for the entries that don't have their own yet: LSU Senate, Community Coffee, PFT Navigator, MRI Motion Agent. Each needs only an `images` entry in the content.
+2. Golf GIF:
+   - It still loops while you read.
+   - At 1.8 MB it's the largest file on the page; a short muted video would be much smaller.
+3. Cleanup:
    - remove the unused `react-router-dom` dependency
+   - remove unused files in `src/assets`: All You Can Eat images, old headshots, `IMG_3218.jpg`, `IMG_3208.JPG`, the old resume PDF, and the Vite template images
    - replace the Vite template README
-   - update the design notes in `CLAUDE.md` to match the code
+   - update the design notes in `CLAUDE.md` to match the redesign
+4. Delete the merged and reference branches once they're no longer needed: `redesign-taste`, `redesign-impeccable`, `redesign-finesse`, `status-redesign-review`, `new-headshot`.
 
 ## Blockers
 - None
