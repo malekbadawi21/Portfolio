@@ -3,21 +3,34 @@
 _Last updated: 2026-11-03_
 
 ## Current state
-malekbadawi.com is live and deploys from `main` through Vercel. The site is React 19 + Vite 8 with plain CSS: a landing screen where the name shrinks into an "MB" mark on scroll, then a home view with four dropdown columns (Roles, Education, Projects, Contact) that open a detail panel below them. The resume was updated on 2026-11-03 (`public/MalekBadawiResumePortfolio.pdf`).
+malekbadawi.com is live and deploys from `main` through Vercel. The site is React 19 + Vite 8 with plain CSS: a landing screen where the name shrinks into an "MB" mark on scroll, then a home view with four dropdown columns (Roles, Education, Projects, Contact) that open a detail panel below them.
+
+The site content was updated on 2026-11-03 to match the current resume (branch `content-update`):
+
+| Column | Entries |
+|---|---|
+| Roles | Pennington, ADA, LSU Senate |
+| Education | LSU, UCL |
+| Projects | Community Coffee, PFT Navigator, MRI Motion Agent, Golf Swing |
+| Contact | Email, LinkedIn, Resume (`public/MalekBadawiResumePortfolio.pdf`) |
 
 ## In progress
-- UI redesign, explored as two directions on separate branches, each reviewed on its own Vercel preview before one is chosen — Malek
+- UI redesign, explored as two directions on separate branches. Each is reviewed on its own Vercel preview before one is chosen — Malek
   - `redesign-taste`: full redesign with new art direction
   - `redesign-impeccable`: keeps the current concept and improves it (typography, hierarchy, motion, mobile, polish)
-- Content update so the site matches the current resume and recent project work — Malek
 
 ## Up next
-1. Update site content from the current resume: Pennington research, ADA internship, and new entries for Community Coffee Onboarding, PFT Navigator and Student Government.
-2. Build both redesign branches and compare their Vercel previews.
+1. Build both redesign branches from the updated `main` and compare their Vercel previews on desktop and phone.
+2. Both redesigns must fix the current layout limits:
+   - The home view is fixed at one screen height and can't scroll, so long text and images get clipped.
+   - On phones, images below the text are cut off.
+   - At 1280×720, some entries (ADA, LSU) are already clipped.
 3. Merge the chosen direction into `main`.
-4. Cleanup:
+4. Add images for the entries that don't have their own yet: LSU Senate, Community Coffee, PFT Navigator, MRI Motion Agent.
+5. Cleanup:
    - compress large images (golf GIF 5.3 MB, Pennington photo 2.5 MB, ADA logo 1.5 MB)
    - remove the unused `uclImg1` import (lint warning)
+   - remove the unused All You Can Eat images and their CSS
    - remove the unused `react-router-dom` dependency
    - replace the Vite template README
    - update the design notes in `CLAUDE.md` to match the code
