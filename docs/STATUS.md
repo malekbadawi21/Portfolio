@@ -1,6 +1,6 @@
 # Portfolio — Status
 
-_Last updated: 2026-11-03_
+_Last updated: 2026-11-04_
 
 ## Current state
 malekbadawi.com is live and deploys from `main` through Vercel. The site is React 19 + Vite 8 with plain CSS: a landing screen where the name shrinks into an "MB" mark on scroll, then a home view with four dropdown columns (Roles, Education, Projects, Contact) that open a detail panel below them.
@@ -17,7 +17,7 @@ The site content was updated on 2026-11-03 to match the current resume (branch `
 ## In progress
 - UI redesign, explored as two directions on separate branches. Each is reviewed on its own Vercel preview before one is chosen — Malek
   - `redesign-taste`: full redesign with new art direction
-  - `redesign-impeccable`: keeps the current concept and improves it (typography, hierarchy, motion, mobile, polish)
+  - `redesign-impeccable`: keeps the current concept and improves it (typography, hierarchy, motion, mobile, polish). Built and pushed 2026-11-04; fixes the three layout limits below; waiting on Vercel preview review
 
 ## Up next
 1. Build both redesign branches from the updated `main` and compare their Vercel previews on desktop and phone.
@@ -29,8 +29,8 @@ The site content was updated on 2026-11-03 to match the current resume (branch `
 4. Add images for the entries that don't have their own yet: LSU Senate, Community Coffee, PFT Navigator, MRI Motion Agent.
 5. Cleanup:
    - compress large images (golf GIF 5.3 MB, Pennington photo 2.5 MB, ADA logo 1.5 MB)
-   - remove the unused `uclImg1` import (lint warning)
-   - remove the unused All You Can Eat images and their CSS
+   - remove the unused `uclImg1` import (lint warning) — done on `redesign-impeccable`
+   - remove the unused All You Can Eat images and their CSS — CSS removed on `redesign-impeccable`; the images are still in `src/assets/ProjectPics/`
    - remove the unused `react-router-dom` dependency
    - replace the Vite template README
    - update the design notes in `CLAUDE.md` to match the code
