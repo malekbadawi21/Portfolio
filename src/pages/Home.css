@@ -221,10 +221,8 @@
   justify-self: end;
   /* The source is 317px wide; past ~440px it turns visibly soft. */
   width: min(100%, 440px);
-  position: relative;
-  border-radius: 50%;
-  overflow: hidden;
 }
+.hero-scan { border-radius: 50%; --readout-inset: 0px; }
 .hero-photo img {
   width: 100%;
   height: auto;
@@ -235,29 +233,17 @@
   border: 3px solid #111111;
 }
 
-/* Load: the name, copy and index rise in; the portrait is revealed from the
-   top down, the way a scan builds an image. Settled inside a second. */
+/* Load: the name, copy and index rise in; the portrait scans in (below).
+   Settled inside a second. */
 .hero-name span,
 .hero-copy,
 .hero-index { animation: rise 640ms var(--ease-out) both; }
 .hero-copy { animation-delay: 110ms; }
 .hero-index { animation-delay: 190ms; }
 
-.scan {
-  position: absolute;
-  inset: 0;
-  background: var(--bg);
-  transform-origin: bottom;
-  animation: scan 820ms var(--ease-out) 160ms both;
-}
-
 @keyframes rise {
   from { opacity: 0; translate: 0 18px; }
   to { opacity: 1; translate: 0 0; }
-}
-@keyframes scan {
-  from { transform: scaleY(1); }
-  to { transform: scaleY(0); }
 }
 
 /* ------------------------------------------------------------------
@@ -321,14 +307,16 @@
 }
 
 .media {
+  --media-h: 420px;
   grid-column: 10 / 13;
   justify-self: end;
+  /* As wide as the image is at --media-h tall, but never past the column.
+     --r is the image's width / height, so its box exists before it loads. */
+  width: min(100%, calc(var(--media-h) * var(--r, 1)));
 }
 .media img {
-  width: auto;
+  width: 100%;
   height: auto;
-  max-width: 100%;
-  max-height: 420px;
 }
 
 .media-set {
@@ -338,7 +326,6 @@
   align-items: start;
   width: 100%;
 }
-.media-set img { width: 100%; max-height: none; }
 .media-set div { display: grid; gap: 8px; }
 
 /* Contact: one band of three cells */
@@ -406,6 +393,7 @@
   min-width: 0;
   overflow: hidden;
 }
+.gallery-ph .scan { height: 100%; }
 .gallery-ph img {
   width: 100%;
   height: 100%;
@@ -446,6 +434,70 @@
 .site-footer a:hover { color: var(--accent); }
 
 /* ------------------------------------------------------------------
+   Scan-in: content images build in as 24 slices, like an MRI acquiring
+   them, once. lib/scan.js drives it; the hidden start state only exists
+   under html.scan-on, so without the script every image is just shown.
+   ------------------------------------------------------------------ */
+
+.scan {
+  position: relative;
+  display: block;
+  --readout-inset: 6px;
+}
+.scan > img { display: block; }
+
+html.scan-on .scan:not(.is-scanned) > img { clip-path: inset(0 0 100% 0); }
+
+.scan-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  display: none;
+}
+.scan.is-scanning:not(.is-scanned) .scan-clip { display: block; }
+
+/* The leading edge: one faint line that travels with the newest slice. */
+.scan-line {
+  position: absolute;
+  inset: 0;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  will-change: transform;
+}
+
+.scan-readout {
+  position: absolute;
+  right: var(--readout-inset);
+  bottom: var(--readout-inset);
+  padding: 3px 5px 2px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 200ms ease, visibility 0s linear 200ms;
+}
+.scan.is-scanning .scan-readout {
+  opacity: 1;
+  visibility: visible;
+  transition: none;
+}
+
+/* Reduced motion: no slices, no line, no readout; a short fade instead. */
+@media (prefers-reduced-motion: reduce) {
+  html.scan-on .scan:not(.is-scanned) > img { clip-path: none; opacity: 0; }
+  .scan-clip,
+  .scan-readout { display: none; }
+}
+
+/* ------------------------------------------------------------------
    Entrances (only once the script has set html.motion)
    ------------------------------------------------------------------ */
 
@@ -480,7 +532,7 @@ html.motion [data-reveal].is-in {
     justify-self: start;
     margin-top: 20px;
   }
-  .media img { max-height: 380px; }
+  .media { --media-h: 380px; }
   .media-set { max-width: 420px; }
   .contact-cell-email { grid-column: 1 / -1; }
   .contact-cell-linkedin { grid-column: 1 / 7; padding-top: 0; }
@@ -532,7 +584,7 @@ html.motion [data-reveal].is-in {
     justify-self: start;
     margin: 0 0 20px;
   }
-  .media img { max-height: 340px; }
+  .media { --media-h: 340px; }
   .media-set { max-width: none; }
   .contact-band { grid-template-columns: minmax(0, 1fr); }
   .contact-cell,
@@ -559,7 +611,6 @@ html.motion [data-reveal].is-in {
    ------------------------------------------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
-  .scan { display: none; }
   .hero-name span,
   .hero-copy,
   .hero-index { animation: none; }

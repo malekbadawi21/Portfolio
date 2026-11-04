@@ -1,23 +1,25 @@
 import Rich from './Rich'
+import ScanImage from './ScanImage'
 
+// Each image in `item.images` is { src, w, h }: its natural size, so the box
+// is reserved before the file loads and nothing on the page shifts.
 function Media({ item }) {
   const [first, ...rest] = item.images || []
   if (!first) return null
+  const img = (im, i) => (
+    <ScanImage key={i} src={im.src} alt={item.label} width={im.w} height={im.h} />
+  )
   if (!rest.length) {
     return (
-      <figure className="media" data-reveal style={{ '--d': 2 }}>
-        <img src={first} alt={item.label} loading="lazy" />
+      <figure className="media" style={{ '--r': first.w / first.h }}>
+        {img(first, 0)}
       </figure>
     )
   }
   return (
-    <figure className="media media-set" data-reveal style={{ '--d': 2 }}>
-      <img src={first} alt={item.label} loading="lazy" />
-      <div>
-        {rest.map((src, i) => (
-          <img key={i} src={src} alt={item.label} loading="lazy" />
-        ))}
-      </div>
+    <figure className="media media-set">
+      {img(first, 0)}
+      <div>{rest.map((im, i) => img(im, i + 1))}</div>
     </figure>
   )
 }

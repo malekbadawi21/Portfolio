@@ -1,4 +1,5 @@
 import LinkedInIcon from './LinkedInIcon'
+import ScanImage from './ScanImage'
 
 // Name, role and the one-line summary first; the index and the headshot
 // sit on the same grid beside them.
@@ -39,8 +40,7 @@ export default function Hero({ headshot, role, line, columns, contact }) {
       </nav>
 
       <figure className="hero-photo">
-        <img src={headshot} alt="Malek Badawi" width="317" height="359" />
-        <span className="scan" aria-hidden="true" />
+        <ScanImage src={headshot} alt="Malek Badawi" width={317} height={359} loading="eager" delay={160} className="hero-scan" />
       </figure>
     </section>
   )
