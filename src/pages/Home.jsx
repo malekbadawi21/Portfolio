@@ -30,10 +30,10 @@ import photo5 from '../assets/PersonalityPics/IMG_4756.jpg'
 // Each photo with its natural width and height, so the gallery can size them
 // uncropped and reserve their space before they load.
 const photos = [
-  { src: photo0, w: 1440, h: 1440 },
-  { src: photo1, w: 1242, h: 2208 },
+  { src: photo0, w: 1200, h: 1200 },
+  { src: photo1, w: 675, h: 1200 },
   { src: photo3, w: 900, h: 1200 },
-  { src: photo4, w: 1242, h: 2208 },
+  { src: photo4, w: 675, h: 1200 },
   { src: photo5, w: 1200, h: 900 },
 ]
 
@@ -47,14 +47,14 @@ const columns = [
         label: 'Pennington',
         title: 'Undergraduate Researcher, Pennington Biomedical',
         body: 'Since March 2026, I\'ve been working on a study of how brain age can be derived from gray and white matter volumes, and what it means when your brain ages faster than you do. I showed the lab\'s BRISQUE pipeline missed MRI-specific artifacts like motion, helping move the lab to MRIQC. Since then, I\'ve organized FreeSurfer outputs for about 460 subjects and built batch workflows across seven studies.',
-        images: [{ src: penningtonImg, w: 4032, h: 3024 }],
+        images: [{ src: penningtonImg, w: 1200, h: 900 }],
       },
       {
         id: 'ada',
         label: 'ADA',
         title: 'Software & Data Engineering Intern, Automotive Data Analytics',
         body: 'From September 2025 to June 2026, I interned remotely at Automotive Data Analytics. I built Microsoft Fabric ETL pipelines that unified 10,000+ customer records from multiple dealership systems into one lakehouse, with automatic refreshes feeding Power BI reports. I also built a two-factor authentication service on Azure Logic Apps, Azure Table Storage, and Twilio, sending one-time codes by email and SMS and handling code expiration and session validation. Real tools, real data, real users.',
-        images: [{ src: adaImg, w: 1024, h: 1024 }],
+        images: [{ src: adaImg, w: 640, h: 640 }],
       },
       {
         id: 'senate',
@@ -73,7 +73,7 @@ const columns = [
         label: 'LSU',
         title: 'Louisiana State University',
         body: 'Studying Software Engineering at Louisiana State University with minors in Mathematics and Honors Research, as a Stamps Scholar. I\'m building toward a focus in AI and machine learning.\n\nI\'m currently taking LLM Application Development! A project-based course where cross-functional teams build LLM-enabled applications for real Louisiana businesses. The curriculum covers probabilistic language models, tokenization, agentic system design, human-AI interaction, and local model fine-tuning. It\'s exactly the kind of applied, state-of-the-art work I want to be doing.',
-        images: [{ src: lsuImg, w: 1551, h: 1012 }],
+        images: [{ src: lsuImg, w: 1200, h: 783 }],
       },
       {
         id: 'ucl',
@@ -82,8 +82,8 @@ const columns = [
         body: 'In the summer of 2025, I spent three weeks at University College London studying Artificial Intelligence Concepts & Applications, finishing with distinction. The course was a structured deep-dive across the full AI stack: supervised and unsupervised learning, neural networks and deep learning, NLP, computer vision, reinforcement learning, and AI in society. It was my first formal exposure to AI as a discipline, and it confirmed the direction I want to go.',
         images: [
           { src: uclImg2, w: 900, h: 1200 },
-          { src: uclImg3, w: 2080, h: 1174 },
-          { src: uclImg4, w: 2078, h: 1172 },
+          { src: uclImg3, w: 1200, h: 677 },
+          { src: uclImg4, w: 1200, h: 677 },
         ],
         collageStyle: 'ucl',
       },
@@ -115,7 +115,7 @@ const columns = [
         label: 'Golf Swing',
         title: 'Golf Swing Analyzer',
         body: 'A computer vision tool that analyzes golf swings in real time. Built with Python, OpenCV, and MediaPipe, it tracks 33 body landmarks per frame, applies a hybrid pose detection model to handle partial occlusion, and automatically identifies the swing plane from the club shaft in the opening frames drawing it as a dotted reference line throughout the swing.',
-        images: [{ src: golfGif, w: 500, h: 893 }],
+        images: [{ src: golfGif, w: 420, h: 750 }],
       },
     ],
   },
