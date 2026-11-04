@@ -122,11 +122,12 @@ const columns = [
   {
     id: 'contact',
     label: 'Contact',
+    intro: 'Have an idea, a project, or just want to talk? I\'d love to hear from you.',
     items: [
       { id: 'email', label: 'Email', title: 'Email', body: 'malekbadawi21@gmail.com', logo: true },
       { id: 'linkedin', label: 'LinkedIn', title: 'LinkedIn', body: '', link: { href: 'https://www.linkedin.com/in/malekbadawi21/', label: 'View LinkedIn Profile' }, logo: true },
       { id: 'github', label: 'GitHub', title: 'GitHub', body: '', link: { href: 'https://github.com/malekbadawi21', label: 'View GitHub Profile' }, logo: true },
-      { id: 'resume', label: 'Resume', title: 'Resume', body: '', link: { href: '/MalekBadawiResumePortfolio.pdf', label: 'Download Resume' }, pdf: '/MalekBadawiResumePortfolio.pdf' },
+      { id: 'resume', label: 'Resume', title: 'Resume', body: '', link: { href: '/MalekBadawiResumePortfolio.pdf', label: 'Download Resume' } },
     ],
   },
 ]
@@ -153,6 +154,7 @@ function ContactBand({ column, n }) {
   )
   return (
     <div className="contact-band">
+      <p className="contact-intro" data-reveal>{column.intro}</p>
       <div className="contact-cell contact-cell-email" id={email.id} data-reveal>
         {meta(email)}
         <a className="contact-email" href={`mailto:${email.body}`}>{email.body}</a>
@@ -177,9 +179,6 @@ function ContactBand({ column, n }) {
           {resume.link.label}
           <DownloadIcon />
         </a>
-        <figure className="resume-page">
-          <iframe src={resume.pdf + '#toolbar=0&navpanes=0&scrollbar=0&view=FitH'} title={resume.title} loading="lazy" tabIndex={-1} />
-        </figure>
       </div>
     </div>
   )

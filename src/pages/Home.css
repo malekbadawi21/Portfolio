@@ -388,6 +388,14 @@
 .contact-cell-resume { grid-column: 11 / 13; }
 .contact-cell .entry-meta { padding-top: 0; }
 
+.contact-intro {
+  grid-column: 1 / 9;
+  font-size: var(--step-lead);
+  line-height: 1.45;
+  max-width: 44ch;
+  padding-top: clamp(28px, 3vw, 40px);
+}
+
 .contact-email {
   font-size: var(--step-head);
   font-weight: 500;
@@ -398,27 +406,6 @@
 }
 @media (hover: hover) and (pointer: fine) {
   .contact-email:hover { color: var(--accent); }
-}
-
-.resume-page {
-  position: relative;
-  width: 168px;
-  aspect-ratio: 8.5 / 11;
-  overflow: hidden;
-  background: #ffffff;
-  outline: 1px solid var(--line);
-  margin-top: 6px;
-  /* Trims the PDF viewer's dark gutter on the right and bottom edges. */
-  clip-path: inset(0 14px 10px 0);
-}
-.resume-page iframe {
-  position: absolute;
-  top: -6px;
-  left: -10px;
-  width: calc(100% + 34px);
-  height: calc(100% + 24px);
-  border: 0;
-  pointer-events: none;
 }
 
 /* ------------------------------------------------------------------
@@ -822,13 +809,13 @@ html.motion [data-reveal].is-in {
   .media { --media-h: 340px; }
   .media-set { max-width: none; }
   .contact-band { grid-template-columns: minmax(0, 1fr); }
+  .contact-intro { grid-column: 1; padding-top: 24px; }
   .contact-cell,
   .contact-cell-email,
   .contact-cell-linkedin,
   .contact-cell-github,
   .contact-cell-resume { grid-column: 1; padding: 24px 0; }
   .contact-cell + .contact-cell { border-top: 1px solid var(--line); }
-  .resume-page { display: none; }
   .contact-email { font-size: var(--step-lead); }
 
   .gallery { flex-wrap: wrap; }
